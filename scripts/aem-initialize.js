@@ -114,12 +114,10 @@ document.querySelectorAll('.aem-block').forEach(async (block) => {
   }
 });
 
-// Block Assets
-await Promise.all([
-  ...styles.map((blockName) => loadCSS(blockName)),
-  ...templates.map((blockName) => loadTemplate(blockName)),
-]);
+// Block Templates
+await Promise.all(templates.map((name) => loadTemplate(name))).catch();
 
-await Promise.all(blocks.map((blockName) => loadBlock(blockName)));
+// Blocks JS
+await Promise.all(blocks.map((name) => loadBlock(name))).catch();
 
 document.body.dataset.status = 'loaded';

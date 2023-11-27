@@ -1,3 +1,7 @@
+:root {
+  --color-primary: red;
+}
+
 body:not([data-status='loaded']) {
   display: none;
 }
@@ -27,4 +31,13 @@ picture img {
 
 .aem-block[data-block-status='loaded'] {
   background: lightgreen;
+}
+
+footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #e6e6e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

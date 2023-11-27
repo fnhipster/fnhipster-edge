@@ -1,3 +1,9 @@
 <template>
-    <slot name="binary"></slot>
+    <style>
+        .aem-binary-message__text {
+            color: var(--color-primary);
+        }
+    </style>
+
+    <slot name="binary" class="aem-binary-message__text"></slot>
 </template>

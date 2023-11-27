@@ -20,11 +20,16 @@ export default class BinaryMessage extends Block {
   constructor() {
     super();
 
-    const message = this.textContent.trim();
+    const item = this.querySelector('div[slot="item"]');
+
+    const message = item.textContent.trim();
 
     this.binary = message
       .split('')
       .map((char) => char.charCodeAt(0).toString(2).padStart(8, '0'));
+
+    // Clean DOM
+    item.remove();
   }
 
   connectedCallback() {
