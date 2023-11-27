@@ -1,0 +1,6 @@
+aem-columns {
+  display: grid;
+  grid-gap: 1rem;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
