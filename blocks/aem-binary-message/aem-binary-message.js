@@ -1,4 +1,4 @@
-import { Block } from '../../scripts/aem-blocks.js';
+import { Block } from '@/scripts/aem-blocks.js';
 
 export default class BinaryMessage extends Block {
   playing;

@@ -7,7 +7,7 @@
     "postinstall": "(cd cloudflare-worker && npm install)",
     "dev": "concurrently -n eds,cfw 'npm run dev:eds' 'npm run dev:cfw'",
     "dev:cfw": "(cd cloudflare-worker && yarn start)",
-    "dev:eds": "concurrently -n ts,aem 'tsc -w' 'aem up'",
+    "dev:eds": "concurrently -n ts,aem 'tsc -w' 'aem up --no-open'",
     "lint:js": "eslint .",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css",
