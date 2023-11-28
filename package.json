@@ -1,16 +1,15 @@
 {
   "name": "@fnhipster/eds",
   "private": true,
-  "version": "1.2.2",
-  "description": "Starter project for Adobe Helix",
+  "version": "0.1.0",
+  "description": "fnhipster.com",
   "scripts": {
     "postinstall": "(cd cloudflare-worker && npm install)",
     "dev": "concurrently -n eds,cfw 'npm run dev:eds' 'npm run dev:cfw'",
     "dev:cfw": "(cd cloudflare-worker && npm start)",
     "dev:eds": "aem up --no-open",
     "lint:js": "eslint .",
-    "lint:css": "stylelint blocks/**/*.css styles/*.css",
-    "lint": "npm run lint:js && npm run lint:css",
+    "lint": "npm run lint:js",
     "semantic-release": "semantic-release --debug"
   },
   "repository": {
