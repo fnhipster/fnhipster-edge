@@ -231,16 +231,12 @@ function setup() {
       if (status === 'fulfilled') {
         if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
           customElements.define(value.name, value.className);
-          console.log('web component', value.name);
         }
       }
     });
 
-    console.log('all blocks loaded');
     document.body.dataset.status = 'loaded';
   });
-
-  console.log('allSettled');
 
   setup();
   sampleRUM('top');
