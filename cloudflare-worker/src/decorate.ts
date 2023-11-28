@@ -16,10 +16,16 @@ export function decorate(res: Response, options: DecoratorOptions) {
 
 	/** Blocks */
 	res = new HTMLRewriter()
-		// Fragments
+		.on('header', new CustomElement('header'))
+
+		.on('footer', new CustomElement('footer'))
 		.on('footer > div', new PruneElement())
 
+		// Fragments
 		.on('.fragment, .fragment > div, .fragment > div > div', new PruneElement())
+
+		// Images
+		.on('picture', new CustomElement('image'))
 
 		// Items Blocks
 		.on('div[class]:not(.fragment)', new CustomElement())
@@ -82,8 +88,10 @@ class Fragment {
 }
 
 class CustomElement {
+	constructor(private tagName?: string) {}
+
 	element(element: Element) {
-		const tagName = element.getAttribute('class')?.split(' ')[0]?.toString();
+		const tagName = element.getAttribute('class')?.split(' ')[0]?.toString() || this.tagName;
 
 		if (tagName && tagName !== 'aem-block') {
 			element.setAttribute('class', 'aem-block');

@@ -9,12 +9,9 @@ export default class Hero extends Block {
     super();
 
     const item = this.querySelector('div[slot="item"]');
-
-    this.image = item.querySelector('picture');
+    this.image = item.querySelector('aem-image');
     this.heading = item.querySelector('p + *');
-
-    // Clean DOM
-    item.remove();
+    this.innerHTML = '';
   }
 
   connectedCallback() {
