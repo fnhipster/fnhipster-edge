@@ -31,8 +31,8 @@ pre {
   padding: 1rem;
 }
 
-.style--highlight {
-  background: #e6e6e6;
+.highlight {
+  background: lightcyan;
 }
 
 .aem-metadata {

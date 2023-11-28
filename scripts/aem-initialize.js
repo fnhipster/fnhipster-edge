@@ -114,11 +114,11 @@ document.querySelectorAll('.aem-block').forEach(async (block) => {
 });
 
 // Block Templates
-await Promise.all(templates.map((name) => loadTemplate(name))).catch();
+await Promise.all(templates.map((name) => loadTemplate(name))).catch(() => {});
 
 // Blocks JS
 await Promise.all(blocks.map((name) => loadBlock(name)))
-  .catch()
+  .catch(() => {})
   .finally(() => {
     document.body.dataset.status = 'loaded';
   });

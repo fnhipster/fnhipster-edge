@@ -19,6 +19,25 @@ export class Block extends HTMLElement {
   }
 }
 
+export class MetaBlock extends Block {
+  metadata = new Map();
+
+  constructor() {
+    super();
+
+    const slots = this.querySelectorAll('[slot]');
+
+    slots.forEach((element) => {
+      const [key, value] = element.children;
+
+      this.metadata.set(key.innerText, value.innerHTML);
+
+      element.setAttribute('slot', key.innerText);
+      element.innerHTML = value.innerHTML;
+    });
+  }
+}
+
 export class Metadata extends HTMLElement {
   metadata = new Map();
 
