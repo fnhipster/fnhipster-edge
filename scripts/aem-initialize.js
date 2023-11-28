@@ -234,7 +234,7 @@ function setup() {
         }
       }
     });
-  }).finally(() => {
+
     document.body.dataset.status = 'loaded';
   });
 
