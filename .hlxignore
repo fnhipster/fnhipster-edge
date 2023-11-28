@@ -5,5 +5,4 @@ LICENSE
 package.json
 package-lock.json
 test/*
-*.ts
 cloudflare-worker
