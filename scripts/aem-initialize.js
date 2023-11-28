@@ -49,10 +49,7 @@ async function loadBlock(blockName) {
     import(href)
       .then((mod) => {
         if (mod.default) {
-          // Define custom element if not already defined
-          if (!customElements.get(blockName)) {
-            customElements.define(blockName, mod.default);
-          }
+          resolve({ type: 'webcomponent', name: blockName, className: mod.default });
         }
       })
       .catch((error) => {
@@ -203,59 +200,57 @@ function setup() {
 }
 
 /**
- * Initialize Blocks
- */
-const styles = [];
-const templates = [];
-const blocks = [];
-
-document.querySelectorAll('.aem-block').forEach(async (block) => {
-  const status = block.dataset.blockStatus;
-
-  if (status !== 'loading' && status !== 'loaded') {
-    block.dataset.blockStatus = 'loading';
-
-    const blockName = block.tagName.toLowerCase();
-
-    // All Bloacks
-    blocks.push(blockName);
-
-    // Non-metadata blocks assets
-    if (!blockName.endsWith('-metadata')) {
-      styles.push(blockName);
-      templates.push(blockName);
-    }
-
-    block.dataset.blockStatus = 'loaded';
-  }
-});
-
-// Block Templates
-await Promise.all(templates.map((name) => loadTemplate(name))).catch(() => {});
-
-// Blocks JS
-await Promise.all(blocks.map((name) => loadBlock(name)))
-  .catch(() => {})
-  .finally(() => {
-    document.body.dataset.status = 'loaded';
-  });
-
-/**
  * Auto initializiation.
  */
 
-setup();
-sampleRUM('top');
+(function initialize() {
+  const promises = [];
 
-window.addEventListener('load', () => sampleRUM('load'));
+  document.querySelectorAll('.aem-block').forEach(async (block) => {
+    const status = block.dataset.blockStatus;
 
-window.addEventListener('unhandledrejection', (event) => {
-  sampleRUM('error', {
-    source: event.reason.sourceURL,
-    target: event.reason.line,
+    if (status !== 'loading' && status !== 'loaded') {
+      block.dataset.blockStatus = 'loading';
+
+      const blockName = block.tagName.toLowerCase();
+
+      // All Blocks
+      promises.push(['block', blockName]);
+
+      // Non-metadata blocks assets
+      if (!blockName.endsWith('-metadata')) {
+        promises.push(['template', blockName]);
+      }
+
+      block.dataset.blockStatus = 'loaded';
+    }
   });
-});
 
-window.addEventListener('error', (event) => {
-  sampleRUM('error', { source: event.filename, target: event.lineno });
-});
+  Promise.allSettled(promises.map(([type, name]) => (type === 'block' ? loadBlock(name) : loadTemplate(name)))).then((settled) => {
+    settled.forEach(({ status, value }) => {
+      if (status === 'fulfilled') {
+        if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
+          customElements.define(value.name, value.className);
+        }
+      }
+    });
+  }).finally(() => {
+    document.body.dataset.status = 'loaded';
+  });
+
+  setup();
+  sampleRUM('top');
+
+  window.addEventListener('load', () => sampleRUM('load'));
+
+  window.addEventListener('unhandledrejection', (event) => {
+    sampleRUM('error', {
+      source: event.reason.sourceURL,
+      target: event.reason.line,
+    });
+  });
+
+  window.addEventListener('error', (event) => {
+    sampleRUM('error', { source: event.filename, target: event.lineno });
+  });
+}());
