@@ -6,8 +6,8 @@
   "scripts": {
     "postinstall": "(cd cloudflare-worker && npm install)",
     "dev": "concurrently -n eds,cfw 'npm run dev:eds' 'npm run dev:cfw'",
-    "dev:cfw": "(cd cloudflare-worker && yarn start)",
-    "dev:eds": "concurrently -n ts,aem 'tsc -w' 'aem up --no-open'",
+    "dev:cfw": "(cd cloudflare-worker && npm start)",
+    "dev:eds": "aem up --no-open",
     "lint:js": "eslint .",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css",
@@ -36,8 +36,7 @@
     "eslint-plugin-import": "2.29.0",
     "semantic-release": "22.0.8",
     "stylelint": "15.2.0",
-    "stylelint-config-standard": "30.0.1",
-    "typescript": "^5.3.2"
+    "stylelint-config-standard": "30.0.1"
   },
   "dependencies": {
     "wrangler": "^3.17.1"
