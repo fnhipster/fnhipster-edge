@@ -3,22 +3,22 @@
  * @param {string} href URL to the CSS file
  * @returns {Promise<void>} Promise that resolves when the CSS file is loaded
  */
-function loadCSS(blockName) {
-  const href = `/blocks/${blockName}/${blockName}.css`;
+// function loadCSS(blockName) {
+//   const href = `/blocks/${blockName}/${blockName}.css`;
 
-  return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > link[href="${href}"]`)) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = href;
-      link.onload = resolve;
-      link.onerror = reject;
-      document.head.append(link);
-    } else {
-      resolve();
-    }
-  });
-}
+//   return new Promise((resolve, reject) => {
+//     if (!document.querySelector(`head > link[href="${href}"]`)) {
+//       const link = document.createElement('link');
+//       link.rel = 'stylesheet';
+//       link.href = href;
+//       link.onload = resolve;
+//       link.onerror = reject;
+//       document.head.append(link);
+//     } else {
+//       resolve();
+//     }
+//   });
+// }
 
 /**
  * Load HTML Template
@@ -80,9 +80,8 @@ async function loadBlock(blockName) {
       .catch((error) => {
         // eslint-disable-next-line no-console
         console.log(`failed to load module for ${blockName}`, error);
-      });
-
-    resolve();
+      })
+      .finally(resolve);
   });
 }
 
@@ -118,6 +117,8 @@ document.querySelectorAll('.aem-block').forEach(async (block) => {
 await Promise.all(templates.map((name) => loadTemplate(name))).catch();
 
 // Blocks JS
-await Promise.all(blocks.map((name) => loadBlock(name))).catch();
-
-document.body.dataset.status = 'loaded';
+await Promise.all(blocks.map((name) => loadBlock(name)))
+  .catch()
+  .finally(() => {
+    document.body.dataset.status = 'loaded';
+  });

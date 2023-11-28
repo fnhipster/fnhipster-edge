@@ -25,8 +25,18 @@ footer {
   align-items: center;
 }
 
+pre {
+  background: #222;
+  color: white;
+  padding: 1rem;
+}
+
 .style--highlight {
   background: #e6e6e6;
+}
+
+.aem-metadata {
+  display: none;
 }
 
 /* Debug */

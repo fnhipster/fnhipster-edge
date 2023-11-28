@@ -25,9 +25,7 @@ export class Metadata extends HTMLElement {
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({ mode: 'open' });
-
-    shadowRoot.innerHTML = '<style>:host { display: none; }</style>';
+    this.attachShadow({ mode: 'open' });
 
     this.querySelectorAll('[slot]').forEach((element) => {
       const slotName = element.slot;
