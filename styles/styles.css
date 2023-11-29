@@ -1,5 +1,5 @@
 body:not([data-status='loaded']) {
-  display: none;
+  opacity: 0;
 }
 
 body {
