@@ -8,6 +8,7 @@
     "dev": "concurrently -n eds,cfw 'npm run dev:eds' 'npm run dev:cfw'",
     "dev:cfw": "(cd cloudflare-worker && npm start)",
     "dev:eds": "aem up --no-open",
+    "deploy:cfw": "(cd cloudflare-worker && npm run deploy)",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
     "semantic-release": "semantic-release --debug"
