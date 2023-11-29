@@ -24,9 +24,6 @@ export function decorate(res: Response, options: DecoratorOptions) {
 		// Fragments
 		.on('.fragment, .fragment > div, .fragment > div > div', new PruneElement())
 
-		// Images
-		.on('picture', new CustomElement('image'))
-
 		// Items Blocks
 		.on('div[class]:not(.fragment)', new CustomElement())
 		.on('div[class]:not(.fragment) > div', new Slots())
