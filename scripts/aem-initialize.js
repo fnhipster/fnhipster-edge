@@ -199,11 +199,22 @@ function setup() {
   }
 }
 
+/** Eager load first image */
+function eagerLoadFirstImage() {
+  const img = document.querySelector('img');
+
+  if (img) {
+    img.setAttribute('loading', 'eager');
+  }
+}
+
 /**
  * Auto initializiation.
  */
 
 (function initialize() {
+  eagerLoadFirstImage();
+
   const promises = [];
 
   document.querySelectorAll('.aem-block').forEach(async (block) => {
