@@ -93,10 +93,11 @@ class CustomElement {
 	constructor(private tagName?: string) {}
 
 	element(element: Element) {
+		const originalClass = element.getAttribute('class')?.toString() || '';
 		const tagName = element.getAttribute('class')?.split(' ')[0]?.toString() || this.tagName;
 
 		if (tagName && tagName !== 'aem-block') {
-			element.setAttribute('class', 'aem-block');
+			element.setAttribute('class', `aem-block ${originalClass}`);
 			element.tagName = `aem-${tagName}`;
 		}
 	}
