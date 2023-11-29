@@ -5,6 +5,12 @@ body:not([data-status='loaded']) {
 body {
   max-width: 960px;
   margin: 0 auto;
+  padding: 0.5rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 .aem-metadata {
