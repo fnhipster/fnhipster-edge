@@ -20,10 +20,10 @@ export default {
 		const drafts = url.pathname.startsWith('/drafts/');
 
 		// is it a request from development environment?
-		const localhost = /localhost|127\.0\.0\.1/.test(url.hostname);
+		const development = /localhost|127\.0\.0\.1/.test(url.hostname);
 
 		// is it preview environment?
-		const preview = localhost || url.hostname.split('.')[0] === 'preview';
+		const preview = development || url.hostname.split('.')[0] === 'preview';
 
 		// only allow drafts in preview environment
 		if (drafts && !preview) {
@@ -40,7 +40,7 @@ export default {
 
 		url.hostname = preview ? env.PREVIEW_HOSTNAME : env.PRODUCTION_HOSTNAME;
 
-		if (localhost) {
+		if (development) {
 			url.port = '3000';
 			url.hostname = 'localhost';
 		}
@@ -60,7 +60,7 @@ export default {
 		let res = await fetch(req, {
 			cf: {
 				// cf doesn't cache html by default: need to override the default behavior
-				cacheEverything: !localhost,
+				cacheEverything: !development,
 			},
 		});
 
@@ -77,6 +77,6 @@ export default {
 		res.headers.delete('age');
 		res.headers.delete('x-robots-tag');
 
-		return decorate(res, { url });
+		return decorate(res, { url, development });
 	},
 };

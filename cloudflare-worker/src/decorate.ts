@@ -1,12 +1,13 @@
 interface DecoratorOptions {
 	url: URL;
+	development?: boolean;
 }
 
 export function decorate(res: Response, options: DecoratorOptions) {
 	/** Fragments */
 	res = new HTMLRewriter()
 		// Embeded
-		.on('.fragment', new Fragment(options.url))
+		.on('.fragment', new Fragment(options.url, undefined, !options.development))
 
 		// Footer
 		.on('footer', new Fragment(options.url, '/fragments/footer'))
@@ -43,12 +44,14 @@ export function decorate(res: Response, options: DecoratorOptions) {
 class Fragment {
 	private baseURL: URL;
 	private path?: string;
+	private cache: boolean;
 
-	constructor(baseURL: URL, path?: string) {
+	constructor(baseURL: URL, path?: string, cache = true) {
 		if (!baseURL) throw new Error('URL is required');
 
 		this.baseURL = baseURL;
 		this.path = path;
+		this.cache = cache;
 	}
 
 	async element(element: Element) {
@@ -76,7 +79,9 @@ class Fragment {
 	async fetchFragment(path: string) {
 		const fragmentURL = new URL(`${path}.plain.html`, this.baseURL);
 
-		const response = await fetch(fragmentURL);
+		const response = await fetch(fragmentURL, {
+			cf: { cacheEverything: this.cache },
+		});
 
 		if (response.ok) return await response.text();
 
