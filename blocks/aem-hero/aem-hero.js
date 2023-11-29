@@ -9,7 +9,7 @@ export default class Hero extends Block {
     const heading = item.querySelector('p + *');
     this.innerHTML = '';
 
-    image.querySelectorAll('img').forEach((img) => {
+    image?.querySelectorAll('img').forEach((img) => {
       // Eager
       img.setAttribute('loading', 'eager');
     });
