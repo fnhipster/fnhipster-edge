@@ -1,6 +1,5 @@
 export interface Env {
-	PREVIEW_HOSTNAME: string;
-	PRODUCTION_HOSTNAME: string;
+	PRODUCTION_BRANCH_PROJECT: string;
 
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
 	// MY_KV_NAMESPACE: KVNamespace;

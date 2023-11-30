@@ -22,8 +22,8 @@ export default {
 		// is it a request from development environment?
 		const development = /localhost|127\.0\.0\.1/.test(url.hostname);
 
-		// is it preview environment?
-		const preview = development || url.hostname.split('.')[0] === 'preview';
+		// is it preview environment? i.e.: domain.page
+		const preview = development || url.hostname.endsWith('.page');
 
 		// only allow drafts in preview environment
 		if (drafts && !preview) {
@@ -38,7 +38,11 @@ export default {
 			url.search = '';
 		}
 
-		url.hostname = preview ? env.PREVIEW_HOSTNAME : env.PRODUCTION_HOSTNAME;
+		if (!env.PRODUCTION_BRANCH_PROJECT) {
+			throw new Error('PRODUCTION_BRANCH_PROJECT is not set');
+		}
+
+		url.hostname = env.PRODUCTION_BRANCH_PROJECT + preview ? '.hlx.page' : 'hlx.live';
 
 		if (development) {
 			url.port = '3000';

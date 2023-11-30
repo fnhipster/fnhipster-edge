@@ -6,8 +6,7 @@ compatibility_date = "2023-11-25"
 # Note: Use secrets to store sensitive data.
 # Docs: https://developers.cloudflare.com/workers/platform/environment-variables
 [vars]
-PRODUCTION_HOSTNAME="main--fnhipster-edge--fnhipster.hlx.live"
-PREVIEW_HOSTNAME="main--fnhipster-edge--fnhipster.hlx.page"
+PRODUCTION_BRANCH_PROJECT="main--fnhipster-edge--fnhipster"
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
