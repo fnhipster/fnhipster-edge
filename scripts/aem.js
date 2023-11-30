@@ -211,11 +211,11 @@ function eagerLoadFirstImage() {
 /**
  * Auto initializiation.
  */
-
-(function initialize() {
+export default async function initialize() {
   eagerLoadFirstImage();
 
-  const promises = [];
+  const fragments = [];
+  const definitions = [];
 
   document.querySelectorAll('.aem-block').forEach(async (block) => {
     const status = block.dataset.blockStatus;
@@ -225,29 +225,60 @@ function eagerLoadFirstImage() {
 
       const blockName = block.tagName.toLowerCase();
 
+      // Prefetches
+      if (blockName === 'aem-fragment') {
+        fragments.push(block);
+      }
+
       // All Blocks
-      promises.push(['block', blockName]);
+      definitions.push(['block', blockName]);
 
       // Non-metadata blocks assets
       if (!blockName.endsWith('-metadata')) {
-        promises.push(['template', blockName]);
+        definitions.push(['template', blockName]);
       }
 
       block.dataset.blockStatus = 'loaded';
     }
   });
 
-  Promise.allSettled(promises.map(([type, name]) => (type === 'block' ? loadBlock(name) : loadTemplate(name)))).then((settled) => {
-    settled.forEach(({ status, value }) => {
-      if (status === 'fulfilled') {
-        if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
-          customElements.define(value.name, value.className);
-        }
-      }
-    });
+  await Promise.allSettled([...fragments.map(async (fragment) => {
+    const slot = fragment.querySelector('[slot="item"]');
 
-    document.body.dataset.status = 'loaded';
-  });
+    const path = slot.innerText.trim();
+
+    const url = new URL(`${path}.plain.html`, window.location.origin);
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.warn(`Fragment ${path} not found.`);
+      }
+
+      const html = await response.text();
+
+      slot.innerHTML = html;
+    } catch (error) {
+      console.error(`Loading fragment "${path}" failed:`, error);
+    }
+  })]);
+
+  // Settle all imports and define custom elements
+  await Promise.allSettled(
+    [...definitions.map(([type, name]) => (type === 'block' ? loadBlock(name) : loadTemplate(name)))],
+  )
+    .then((settled) => {
+      settled.forEach(async ({ status, value }) => {
+        if (status === 'fulfilled') {
+          if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
+            customElements.define(value.name, value.className);
+          }
+        }
+      });
+
+      document.body.dataset.status = 'loaded';
+    });
 
   setup();
   sampleRUM('top');
@@ -264,4 +295,4 @@ function eagerLoadFirstImage() {
   window.addEventListener('error', (event) => {
     sampleRUM('error', { source: event.filename, target: event.lineno });
   });
-}());
+}
