@@ -1,7 +1,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<script src="/scripts/aem-initialize.js" type="module"></script>
+<link rel="prefetch" href="/scripts/aem-blocks.js" />
 
-<script src="/scripts/aem-blocks.js" type="module"></script>
+<script type="module">
+    import initialize from '/scripts/aem.js'
+
+    initialize();
+</script>
+
 
 <link rel="stylesheet" href="/styles/styles.css" />

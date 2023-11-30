@@ -25,11 +25,18 @@ class CustomElement {
 	constructor(private tagName?: string) {}
 
 	element(element: Element) {
-		const originalClass = element.getAttribute('class')?.toString() || '';
 		const tagName = element.getAttribute('class')?.split(' ')[0]?.toString() || this.tagName;
 
+		const originalClass = element.getAttribute('class')?.toString() || '';
+
+		let className = 'aem-block';
+
+		if (originalClass) {
+			className += ' ' + originalClass;
+		}
+
 		if (tagName && tagName !== 'aem-block') {
-			element.setAttribute('class', `aem-block ${originalClass}`);
+			element.setAttribute('class', className);
 			element.tagName = `aem-${tagName}`;
 		}
 	}
