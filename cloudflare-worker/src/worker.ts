@@ -42,7 +42,7 @@ export default {
 			throw new Error('PRODUCTION_BRANCH_PROJECT is not set');
 		}
 
-		url.hostname = env.PRODUCTION_BRANCH_PROJECT ? '.hlx.page' : 'hlx.live';
+		url.hostname = env.PRODUCTION_BRANCH_PROJECT + preview ? '.hlx.page' : 'hlx.live';
 
 		if (development) {
 			url.port = '3000';
