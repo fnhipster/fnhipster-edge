@@ -42,12 +42,24 @@ export default {
 			throw new Error('PRODUCTION_BRANCH_PROJECT is not set');
 		}
 
-		url.hostname = `${env.PRODUCTION_BRANCH_PROJECT}.hlx.${preview ? 'page' : 'live'}`;
+		// get subdomain branch
+		const subdomain = url.hostname.match(/^(?!www\.)(.*)\.[^.]+\.[^.]+$/)?.[1] ?? env.PRODUCTION_BRANCH_PROJECT;
 
+		// Development environment: use localhost
 		if (development) {
 			url.port = '3000';
 			url.hostname = 'localhost';
+
+			// Preview environment: use *.hlx.page
+		} else if (preview) {
+			url.hostname = `${subdomain}.hlx.page`;
+
+			// Production environment: use *.hlx.live
+		} else {
+			url.hostname = `${env.PRODUCTION_BRANCH_PROJECT}.hlx.${preview ? 'page' : 'live'}`;
 		}
+
+		console.log(`fetching ${url.href}`);
 
 		const req = new Request(url, request);
 
