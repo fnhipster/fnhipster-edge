@@ -2,6 +2,7 @@ name: Linting
 
 on:
   push:
+    branches: [main]
     paths:
       - cloudflare-worker/**
 
