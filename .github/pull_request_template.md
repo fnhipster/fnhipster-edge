@@ -2,7 +2,6 @@ Please always provide the [GitHub issue(s)](../issues) your PR is for, as well a
 
 Fix #<gh-issue-id>
 
-Test URLs:
+URL for testing:
 
-- Before: https://main--fnhipster-edge--fnhipster.fnhipster.com/
-- After: https://<branch>--fnhipster-edge--fnhipster.fnhipster.page/
+- https://<branch>--fnhipster-edge--fnhipster.hlx.page/
