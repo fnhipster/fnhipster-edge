@@ -16,6 +16,6 @@ jobs:
         with:
           node-version: '16' #required for npm 8 or later.
       - run: (cd cloudflare-worker && npm install)
-      - run: (cd cloudflare-worker && npm deploy)
+      - run: (cd cloudflare-worker && npm run deploy)
         env:
           CI: true
