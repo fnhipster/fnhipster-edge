@@ -215,19 +215,45 @@ function eagerLoadFirstImage() {
 /**
  * Auto initializiation.
  */
+
+// TODO: Clean initialize function; breakdown into smaller reusable functions
 export default async function initialize() {
   eagerLoadFirstImage();
 
   const fragments = [];
   const definitions = [];
 
-  document.querySelectorAll('.aem-block').forEach(async (block) => {
+  // Header
+  const header = document.querySelector('header');
+  const customHeader = document.createElement('aem-header');
+  customHeader.innerHTML = header.innerHTML;
+  header.parentNode.replaceChild(customHeader, header);
+  definitions.push(['block', 'aem-header']);
+
+  // Footer
+  const footer = document.querySelector('footer');
+  const customFooter = document.createElement('aem-footer');
+  customFooter.innerHTML = footer.innerHTML;
+  footer.parentNode.replaceChild(customFooter, footer);
+  definitions.push(['block', 'aem-footer']);
+
+  document.querySelectorAll('div[class]').forEach(async (block) => {
     const status = block.dataset.blockStatus;
 
     if (status !== 'loading' && status !== 'loaded') {
       block.dataset.blockStatus = 'loading';
 
-      const blockName = block.tagName.toLowerCase();
+      const blockName = `aem-${block.getAttribute('class')}`;
+
+      // Custom Elements
+      const customElement = document.createElement(blockName);
+      customElement.innerHTML = block.innerHTML;
+      block.parentNode.replaceChild(customElement, block);
+
+      // Slots
+      [...customElement.children].forEach((slot) => {
+        slot.setAttribute('slot', 'item');
+      });
 
       // Prefetches
       if (blockName === 'aem-fragment') {
@@ -250,7 +276,7 @@ export default async function initialize() {
   // might need rerun after Fragment is loaded
   await Promise.allSettled([
     ...fragments.map(async (fragment) => {
-      const slot = fragment.querySelector('[slot="item"]');
+      const [slot] = fragment.children;
 
       const path = slot.innerText.trim();
 
@@ -265,8 +291,7 @@ export default async function initialize() {
         }
 
         const html = await response.text();
-
-        slot.innerHTML = html;
+        slot.innerHTML = html; // TODO: not working
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(`Loading fragment "${path}" failed:`, error);

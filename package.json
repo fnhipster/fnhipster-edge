@@ -4,11 +4,7 @@
   "version": "0.1.0",
   "description": "fnhipster.com",
   "scripts": {
-    "postinstall": "(cd cloudflare-worker && npm install)",
-    "dev": "concurrently -n eds,cfw 'npm run dev:eds' 'npm run dev:cfw'",
-    "dev:cfw": "(cd cloudflare-worker && npm start)",
-    "dev:eds": "aem up --no-open",
-    "deploy:cfw": "(cd cloudflare-worker && npm run deploy)",
+    "dev": "aem up",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
     "semantic-release": "semantic-release --debug"
