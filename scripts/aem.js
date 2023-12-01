@@ -225,7 +225,7 @@ function transformToCustomElement(block) {
     slot.setAttribute('slot', 'item');
   });
 
-  return tagName;
+  return customElement;
 }
 
 /**
@@ -245,11 +245,12 @@ export default async function initialize() {
     if (status !== 'loading' && status !== 'loaded') {
       block.dataset.blockStatus = 'loading';
 
-      const tagName = transformToCustomElement(block);
+      const customElement = transformToCustomElement(block);
+      const tagName = customElement.tagName.toLowerCase();
 
       // Prefetches
       if (tagName === 'aem-fragment') {
-        fragments.push(block);
+        fragments.push(customElement);
       }
 
       // All Blocks
@@ -283,7 +284,8 @@ export default async function initialize() {
         }
 
         const html = await response.text();
-        slot.innerHTML = html; // TODO: not working
+
+        slot.innerHTML = html;
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(`Loading fragment "${path}" failed:`, error);
