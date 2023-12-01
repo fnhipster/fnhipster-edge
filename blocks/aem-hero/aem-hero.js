@@ -1,10 +1,10 @@
-import { Block } from '../../scripts/aem-blocks.js';
+import { Block } from '../../scripts/aem.js';
 
 export default class Hero extends Block {
   constructor() {
     super();
 
-    const [item] = this.data;
+    const [item] = this.values;
     const image = item.querySelector('picture');
     const heading = item.querySelector('p + *');
     this.innerHTML = '';

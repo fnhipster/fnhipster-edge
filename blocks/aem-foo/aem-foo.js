@@ -1,8 +1,8 @@
-import { MetaBlock } from '../../scripts/aem-blocks.js';
+import { Block } from '../../scripts/aem.js';
 
-export default class Foo extends MetaBlock {
-  //   constructor() {
-  //     super();
-  //     console.log(this.data);
-  //   }
+export default class Foo extends Block {
+  constructor() {
+    super({ mapValues: true });
+    console.log(this.values);
+  }
 }

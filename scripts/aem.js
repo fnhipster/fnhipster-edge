@@ -330,3 +330,37 @@ export default async function initialize() {
     sampleRUM('error', { source: event.filename, target: event.lineno });
   });
 }
+
+// TODO: define inner web components if needed
+export class Block extends HTMLElement {
+  constructor(options = {}) {
+    super();
+
+    this.values = options.mapValues ? new Map() : [];
+
+    const id = this.tagName.toLowerCase();
+
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+
+    const template = document.getElementById(id);
+
+    if (template) {
+      shadowRoot.appendChild(template.content.cloneNode(true));
+    }
+
+    const slots = this.querySelectorAll('[slot="item"]');
+
+    slots.forEach((element) => {
+      if (options.mapValues) {
+        const [key, value] = element.children;
+
+        this.values.set(key.innerText, value.innerHTML);
+
+        element.setAttribute('slot', key.innerText);
+        element.innerHTML = value.innerHTML;
+      } else {
+        this.values.push(element);
+      }
+    });
+  }
+}

@@ -1,4 +1,4 @@
-import { Block } from '../../scripts/aem-blocks.js';
+import { Block } from '../../scripts/aem.js';
 
 export default class BinaryMessage extends Block {
   playing;
@@ -20,7 +20,7 @@ export default class BinaryMessage extends Block {
   constructor() {
     super();
 
-    const [item] = this.data;
+    const [item] = this.values;
 
     const message = item.textContent.trim();
 
