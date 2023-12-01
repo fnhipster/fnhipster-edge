@@ -1,6 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
 export class Block extends HTMLElement {
+  data = new Set();
+
   constructor() {
     super();
 
@@ -13,11 +15,17 @@ export class Block extends HTMLElement {
     if (template) {
       shadowRoot.appendChild(template.content.cloneNode(true));
     }
+
+    const slots = this.querySelectorAll('[slot="item"]');
+
+    slots.forEach((element) => {
+      this.data.add(element);
+    });
   }
 }
 
 export class MetaBlock extends Block {
-  metadata = new Map();
+  data = new Map();
 
   constructor() {
     super();
@@ -27,7 +35,7 @@ export class MetaBlock extends Block {
     slots.forEach((element) => {
       const [key, value] = element.children;
 
-      this.metadata.set(key.innerText, value.innerHTML);
+      this.data.set(key.innerText, value.innerHTML);
 
       element.setAttribute('slot', key.innerText);
       element.innerHTML = value.innerHTML;

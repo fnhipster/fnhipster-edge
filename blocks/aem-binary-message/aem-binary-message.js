@@ -20,7 +20,7 @@ export default class BinaryMessage extends Block {
   constructor() {
     super();
 
-    const item = this.querySelector('div[slot="item"]');
+    const [item] = this.data;
 
     const message = item.textContent.trim();
 

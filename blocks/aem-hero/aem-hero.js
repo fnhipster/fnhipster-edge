@@ -4,7 +4,7 @@ export default class Hero extends Block {
   constructor() {
     super();
 
-    const item = this.querySelector('div[slot="item"]');
+    const [item] = this.data;
     const image = item.querySelector('picture');
     const heading = item.querySelector('p + *');
     this.innerHTML = '';

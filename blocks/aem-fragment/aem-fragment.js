@@ -1,5 +1,3 @@
 import { Block } from '../../scripts/aem-blocks.js';
 
-export default class Fragment extends Block {
-
-}
+export default class Fragment extends Block {}
