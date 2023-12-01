@@ -207,11 +207,16 @@ function setup() {
 
 /** Eager load first image */
 function eagerLoadFirstImage() {
-  const img = document.querySelector('img');
+  const images = document.querySelectorAll('img');
 
-  if (img) {
-    img.setAttribute('loading', 'eager');
-  }
+  images.forEach((img) => {
+    // on load, eager load if image is majorly visible in the viewport
+    const visible = img.getBoundingClientRect().top < (window.innerHeight / 1.5);
+
+    if (visible) {
+      img.setAttribute('loading', 'eager');
+    }
+  });
 }
 
 function transformToCustomElement(block) {
