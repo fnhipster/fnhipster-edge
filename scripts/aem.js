@@ -3,7 +3,8 @@
  * @param {string} name The name of the template
  * @returns {Promise<HTMLTemplateElement>} The template
  */
-async function loadTemplate(blockName) {
+async function loadTemplate(element) {
+  const blockName = element.tagName.toLowerCase();
   const href = `/blocks/${blockName}/${blockName}.html`;
 
   return new Promise((resolve, reject) => {
@@ -42,7 +43,9 @@ async function loadTemplate(blockName) {
  * @param {string} href The path to the block
  * @returns {Promise<HTMLElement>} The block
  */
-async function loadBlock(blockName) {
+async function loadBlock(element) {
+  const blockName = element.tagName.toLowerCase();
+
   const href = `/blocks/${blockName}/${blockName}.js`;
 
   return new Promise((resolve) => {
@@ -50,7 +53,6 @@ async function loadBlock(blockName) {
       .then((mod) => {
         if (mod.default) {
           resolve({
-            type: 'webcomponent',
             name: blockName,
             className: mod.default,
           });
@@ -228,86 +230,85 @@ function transformToCustomElement(block) {
   return customElement;
 }
 
-/**
- * Initializiation.
- */
+function getBlockResources() {
+  const components = new Set();
+  const templates = new Set();
+  const fragments = new Set();
 
-// TODO: Clean initialize function; breakdown into smaller reusable functions
-export default async function initialize() {
-  eagerLoadFirstImage();
+  document.querySelectorAll('header, footer, div[class]').forEach((block) => {
+    const customElement = transformToCustomElement(block);
+    const tagName = customElement.tagName.toLowerCase();
 
-  const fragments = [];
-  const definitions = [];
+    components.add(customElement);
 
-  document.querySelectorAll('header, footer, div[class]').forEach(async (block) => {
-    const status = block.dataset.blockStatus;
+    // fragments to preload
+    if (block.classList.contains('fragment')) {
+      fragments.add(customElement);
+    }
 
-    if (status !== 'loading' && status !== 'loaded') {
-      block.dataset.blockStatus = 'loading';
-
-      const customElement = transformToCustomElement(block);
-      const tagName = customElement.tagName.toLowerCase();
-
-      // Prefetches
-      if (tagName === 'aem-fragment') {
-        fragments.push(customElement);
-      }
-
-      // All Blocks
-      definitions.push(['block', tagName]);
-
-      // Non-metadata blocks assets
-      if (!tagName.endsWith('-metadata')) {
-        definitions.push(['template', tagName]);
-      }
-
-      block.dataset.blockStatus = 'loaded';
+    // only add templates for non-metadata blocks
+    if (!tagName.endsWith('-metadata')) {
+      templates.add(customElement);
     }
   });
 
-  // TODO: it's not picking up Blocks inside the Fragment
-  // might need rerun after Fragment is loaded
-  await Promise.allSettled([
-    ...fragments.map(async (fragment) => {
-      const [slot] = fragment.children;
+  return { components, templates, fragments };
+}
 
-      const path = slot.innerText.trim();
+async function preloadFragment(element) {
+  const slot = element.querySelector('[slot="item"]');
+  const path = element.querySelector('[slot="item"] > div').textContent;
+  slot.innerHTML = '';
 
-      const url = new URL(`${path}.plain.html`, window.location.origin);
+  const url = new URL(`${path}.plain.html`, window.location.origin);
 
-      try {
-        const response = await fetch(url);
+  try {
+    const res = await fetch(url);
 
-        if (!response.ok) {
-          // eslint-disable-next-line no-console
-          console.warn(`Fragment ${path} not found.`);
-        }
+    if (!res.ok) {
+      // eslint-disable-next-line no-console
+      console.warn(`failed to preload fragment ${path}`);
+    }
 
-        const html = await response.text();
+    const content = await res.text();
+    slot.innerHTML = content;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Loading fragment ${path} failed:`, error);
+  }
+}
 
-        slot.innerHTML = html;
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`Loading fragment "${path}" failed:`, error);
-      }
-    }),
+/**
+ * Initializiation.
+ */
+export default async function initialize() {
+  // Eager load first image
+  eagerLoadFirstImage();
+
+  // Load block resources
+  const { components, templates, fragments } = getBlockResources();
+
+  await Promise.allSettled([...fragments].map(preloadFragment));
+
+  const [, loadedComponents] = await Promise.allSettled([
+    Promise.allSettled([...templates].map(loadTemplate)),
+    Promise.allSettled([...components].map(loadBlock)),
   ]);
 
-  // Settle all imports and define custom elements
-  await Promise.allSettled([
-    ...definitions.map(([type, name]) => (type === 'block' ? loadBlock(name) : loadTemplate(name))),
-  ]).then((settled) => {
-    settled.forEach(async ({ status, value }) => {
-      if (status === 'fulfilled') {
-        if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
-          customElements.define(value.name, value.className);
-        }
+  // Define custom elements
+  loadedComponents.value.forEach(async ({ status, value }) => {
+    if (status === 'fulfilled') {
+      // If not already defined, define it.
+      if (!customElements.get(value.name)) {
+        customElements.define(value.name, value.className);
       }
-    });
-
-    document.body.dataset.status = 'loaded';
+    }
   });
 
+  // Page is fully loaded
+  document.body.dataset.status = 'loaded';
+
+  // rest of EDS setup...
   setup();
   sampleRUM('top');
 
