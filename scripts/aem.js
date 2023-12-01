@@ -49,7 +49,11 @@ async function loadBlock(blockName) {
     import(href)
       .then((mod) => {
         if (mod.default) {
-          resolve({ type: 'webcomponent', name: blockName, className: mod.default });
+          resolve({
+            type: 'webcomponent',
+            name: blockName,
+            className: mod.default,
+          });
         }
       })
       .catch((error) => {
@@ -242,43 +246,48 @@ export default async function initialize() {
     }
   });
 
-  await Promise.allSettled([...fragments.map(async (fragment) => {
-    const slot = fragment.querySelector('[slot="item"]');
+  // TODO: it's not picking up Blocks inside the Fragment
+  // might need rerun after Fragment is loaded
+  await Promise.allSettled([
+    ...fragments.map(async (fragment) => {
+      const slot = fragment.querySelector('[slot="item"]');
 
-    const path = slot.innerText.trim();
+      const path = slot.innerText.trim();
 
-    const url = new URL(`${path}.plain.html`, window.location.origin);
+      const url = new URL(`${path}.plain.html`, window.location.origin);
 
-    try {
-      const response = await fetch(url);
+      try {
+        const response = await fetch(url);
 
-      if (!response.ok) {
-        console.warn(`Fragment ${path} not found.`);
+        if (!response.ok) {
+          // eslint-disable-next-line no-console
+          console.warn(`Fragment ${path} not found.`);
+        }
+
+        const html = await response.text();
+
+        slot.innerHTML = html;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(`Loading fragment "${path}" failed:`, error);
       }
-
-      const html = await response.text();
-
-      slot.innerHTML = html;
-    } catch (error) {
-      console.error(`Loading fragment "${path}" failed:`, error);
-    }
-  })]);
+    }),
+  ]);
 
   // Settle all imports and define custom elements
-  await Promise.allSettled(
-    [...definitions.map(([type, name]) => (type === 'block' ? loadBlock(name) : loadTemplate(name)))],
-  )
-    .then((settled) => {
-      settled.forEach(async ({ status, value }) => {
-        if (status === 'fulfilled') {
-          if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
-            customElements.define(value.name, value.className);
-          }
+  await Promise.allSettled([
+    ...definitions.map(([type, name]) => (type === 'block' ? loadBlock(name) : loadTemplate(name))),
+  ]).then((settled) => {
+    settled.forEach(async ({ status, value }) => {
+      if (status === 'fulfilled') {
+        if (value?.type === 'webcomponent' && !customElements.get(value.name)) {
+          customElements.define(value.name, value.className);
         }
-      });
-
-      document.body.dataset.status = 'loaded';
+      }
     });
+
+    document.body.dataset.status = 'loaded';
+  });
 
   setup();
   sampleRUM('top');
