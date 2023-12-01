@@ -212,8 +212,24 @@ function eagerLoadFirstImage() {
   }
 }
 
+function transformToCustomElement(block) {
+  const tagName = `aem-${block.getAttribute('class') || block.tagName.toLowerCase()}`;
+  const customElement = document.createElement(tagName);
+
+  customElement.innerHTML = block.innerHTML;
+
+  block.parentNode.replaceChild(customElement, block);
+
+  // Slots
+  [...customElement.children].forEach((slot) => {
+    slot.setAttribute('slot', 'item');
+  });
+
+  return tagName;
+}
+
 /**
- * Auto initializiation.
+ * Initializiation.
  */
 
 // TODO: Clean initialize function; breakdown into smaller reusable functions
@@ -223,49 +239,25 @@ export default async function initialize() {
   const fragments = [];
   const definitions = [];
 
-  // Header
-  const header = document.querySelector('header');
-  const customHeader = document.createElement('aem-header');
-  customHeader.innerHTML = header.innerHTML;
-  header.parentNode.replaceChild(customHeader, header);
-  definitions.push(['block', 'aem-header']);
-
-  // Footer
-  const footer = document.querySelector('footer');
-  const customFooter = document.createElement('aem-footer');
-  customFooter.innerHTML = footer.innerHTML;
-  footer.parentNode.replaceChild(customFooter, footer);
-  definitions.push(['block', 'aem-footer']);
-
-  document.querySelectorAll('div[class]').forEach(async (block) => {
+  document.querySelectorAll('header, footer, div[class]').forEach(async (block) => {
     const status = block.dataset.blockStatus;
 
     if (status !== 'loading' && status !== 'loaded') {
       block.dataset.blockStatus = 'loading';
 
-      const blockName = `aem-${block.getAttribute('class')}`;
-
-      // Custom Elements
-      const customElement = document.createElement(blockName);
-      customElement.innerHTML = block.innerHTML;
-      block.parentNode.replaceChild(customElement, block);
-
-      // Slots
-      [...customElement.children].forEach((slot) => {
-        slot.setAttribute('slot', 'item');
-      });
+      const tagName = transformToCustomElement(block);
 
       // Prefetches
-      if (blockName === 'aem-fragment') {
+      if (tagName === 'aem-fragment') {
         fragments.push(block);
       }
 
       // All Blocks
-      definitions.push(['block', blockName]);
+      definitions.push(['block', tagName]);
 
       // Non-metadata blocks assets
-      if (!blockName.endsWith('-metadata')) {
-        definitions.push(['template', blockName]);
+      if (!tagName.endsWith('-metadata')) {
+        definitions.push(['template', tagName]);
       }
 
       block.dataset.blockStatus = 'loaded';
