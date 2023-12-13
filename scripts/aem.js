@@ -1,69 +1,158 @@
+/*
+ * Copyright 2023 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+
+/* eslint-disable max-classes-per-file */
+
+import config from '../aem.config.js';
+
 /**
  * Load HTML Template
  * @param {string} name The name of the template
  * @returns {Promise<HTMLTemplateElement>} The template
  */
-async function loadTemplate(element) {
-  const blockName = element.tagName.toLowerCase();
-  const href = `/blocks/${blockName}/${blockName}.html`;
+async function loadTemplate(name) {
+  const href = `${window.hlx.codeBasePath}/bricks/${name}/${name}.html`;
 
   return new Promise((resolve, reject) => {
     const id = href.split('/').pop().split('.').shift();
 
-    if (!document.querySelector(`body > template[id="${id}"]`)) {
-      fetch(href).then((response) => {
-        if (response.ok) {
-          response
-            .text()
-            .then((text) => {
-              const container = document.createElement('div');
+    const brick = document.querySelector(`template[id="${id}"]`);
 
-              container.innerHTML = text.trim();
-
-              const html = container.firstChild;
-
-              if (html) {
-                html.id = id;
-                document.body.append(html);
-              }
-            })
-            .finally(resolve);
-        } else {
-          reject();
-        }
-      });
-    } else {
+    if (brick) {
       resolve();
+      return;
     }
+
+    fetch(href).then((response) => {
+      if (response.ok) {
+        response
+          .text()
+          .then((text) => {
+            const container = document.createElement('div');
+
+            container.innerHTML = text.trim();
+
+            const html = container.firstChild;
+
+            if (html) {
+              html.id = id;
+              document.body.append(html);
+            }
+          })
+          .finally(resolve);
+      } else {
+        reject();
+      }
+    });
   });
 }
 
 /**
- * Load Block
- * @param {string} href The path to the block
- * @returns {Promise<HTMLElement>} The block
+ * Load Brick
+ * @param {string} href The path to the brick
+ * @returns {Promise<HTMLElement>} The brick
  */
-async function loadBlock(element) {
-  const blockName = element.tagName.toLowerCase();
+async function loadBrick(name) {
+  const href = `${window.hlx.codeBasePath}/bricks/${name}/${name}.js`;
 
-  const href = `/blocks/${blockName}/${blockName}.js`;
-
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     import(href)
       .then((mod) => {
         if (mod.default) {
           resolve({
-            name: blockName,
+            name,
             className: mod.default,
           });
         }
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
-        console.log(`failed to load module for ${blockName}`, error);
-      })
-      .finally(resolve);
+        console.warn(`Failed to load module for ${name}`, error);
+        reject(error);
+      });
   });
+}
+
+/**
+ * Loads a CSS file.
+ * @param {string} href URL to the CSS file
+ */
+async function loadCSS(href) {
+  return new Promise((resolve, reject) => {
+    if (!document.querySelector(`head > link[href="${href}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.onload = resolve;
+      link.onerror = reject;
+      document.head.append(link);
+    } else {
+      resolve();
+    }
+  });
+}
+
+/** Loads a JS file
+ * @param {string} src URL to the JS file
+ *
+ */
+async function loadJS(src) {
+  return new Promise((resolve, reject) => {
+    import(src)
+      .then(resolve)
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.warn(`Failed to load script ${src}`, error);
+        reject(error);
+      });
+  });
+}
+
+/**
+ * Builds hero brick and prepends to main in a new section.
+ * @param {Element} main The container element
+ */
+// function buildHeroBrick() {
+//   const main = document.querySelector('main');
+//   const h1 = main.querySelector('main h1');
+//   const picture = main.querySelector('main p > picture');
+
+//   if (
+//     h1
+//     && picture
+//     // eslint-disable-next-line no-bitwise
+//     && h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING
+//   ) {
+//     const section = document.createElement('div');
+//     section.classList.add('hero');
+//     section.append(picture.cloneNode(true));
+//     section.append(h1.cloneNode(true));
+
+//     picture.parentElement.remove();
+//     h1.remove();
+
+//     main.prepend(section);
+//   }
+// }
+
+/**
+ * Decorate root.
+ */
+function decorateRoot() {
+  const root = document.createElement('aem-root');
+  root.append(document.querySelector('header'));
+  root.append(document.querySelector('main'));
+  root.append(document.querySelector('footer'));
+  document.body.prepend(root);
 }
 
 /**
@@ -75,7 +164,7 @@ async function loadBlock(element) {
  * @param {string} data.target subject of the checkpoint event,
  * for instance the href of a link, or a search term
  */
-function sampleRUM(checkpoint, data = {}) {
+export function sampleRUM(checkpoint, data = {}) {
   sampleRUM.defer = sampleRUM.defer || [];
   const defer = (fnname) => {
     sampleRUM[fnname] = sampleRUM[fnname]
@@ -184,7 +273,7 @@ function sampleRUM(checkpoint, data = {}) {
 }
 
 /**
- * Setup block utils.
+ * Setup brick utils.
  */
 function setup() {
   window.hlx = window.hlx || {};
@@ -206,64 +295,93 @@ function setup() {
 }
 
 /** Eager load first image */
-function eagerLoadFirstImage() {
-  const images = document.querySelectorAll('img');
+function loadEagerImages() {
+  // Query for the first <picture> element in the DOM
+  const pictureElement = document.querySelector('picture');
 
-  images.forEach((img) => {
-    // on load, eager load if image is majorly visible in the viewport
-    const visible = img.getBoundingClientRect().top < (window.innerHeight / 1.5);
+  if (!pictureElement) return;
 
-    if (visible) {
-      img.setAttribute('loading', 'eager');
-    }
-  });
+  function getSrcSet() {
+    const sourceElement = Array.from(
+      pictureElement.querySelectorAll('source'),
+    ).find((source) => {
+      const mediaQuery = source.getAttribute('media');
+      return !mediaQuery || window.matchMedia(mediaQuery).matches;
+    });
+
+    const source = (sourceElement && sourceElement.getAttribute('srcset'))
+      || pictureElement.querySelector('img').getAttribute('src');
+
+    return source;
+  }
+
+  // Create the link element
+  const linkElement = document.createElement('link');
+  linkElement.rel = 'preload';
+  linkElement.as = 'image';
+  linkElement.href = getSrcSet();
+
+  // Append the link element to the head of the document
+  document.head.appendChild(linkElement);
 }
 
-function transformToCustomElement(block) {
-  const tagName = `aem-${block.getAttribute('class') || block.tagName.toLowerCase()}`;
-  const customElement = document.createElement(tagName);
+function transformToBrick(block) {
+  const { classList } = block;
+  const blockName = classList[0];
+  const blockClasses = [...classList].slice(1);
 
-  customElement.innerHTML = block.innerHTML;
+  const tagName = `aem-${blockName || block.tagName.toLowerCase()}`;
+  const brick = document.createElement(tagName);
+  brick.classList.add(...blockClasses);
 
-  block.parentNode.replaceChild(customElement, block);
+  brick.innerHTML = block.innerHTML;
 
-  // Slots
-  [...customElement.children].forEach((slot) => {
-    slot.setAttribute('slot', 'item');
-  });
+  block.parentNode.replaceChild(brick, block);
 
-  return customElement;
+  return brick;
 }
 
-function getBlockResources() {
-  const components = new Set();
-  const templates = new Set();
-  const fragments = new Set();
+function getBrickResources() {
+  const components = new Set(['aem-root']);
+  const templates = new Set(['aem-root']);
 
-  document.querySelectorAll('header, footer, div[class]').forEach((block) => {
-    const customElement = transformToCustomElement(block);
-    const tagName = customElement.tagName.toLowerCase();
-
-    components.add(customElement);
-
-    // fragments to preload
-    if (block.classList.contains('fragment')) {
-      fragments.add(customElement);
-    }
-
-    // only add templates for non-metadata blocks
-    if (!tagName.endsWith('-metadata')) {
-      templates.add(customElement);
+  // Load Bricks from config
+  config.bricks?.forEach((brick) => {
+    components.add(brick.name);
+    if (brick.template !== false) {
+      templates.add(brick.name);
     }
   });
 
-  return { components, templates, fragments };
+  // Load Bricks from DOM
+  document.body
+    .querySelectorAll('div[class]:not(.fragment)')
+    .forEach((block) => {
+      const { status } = block.dataset;
+
+      if (status === 'loading' || status === 'loaded') return;
+
+      block.dataset.status = 'loading';
+
+      const brick = transformToBrick(block);
+      const tagName = brick.tagName.toLowerCase();
+
+      components.add(tagName);
+
+      // only add templates for non-metadata bricks
+      if (!tagName.endsWith('-metadata')) {
+        templates.add(tagName);
+      }
+
+      brick.dataset.status = 'loaded';
+    });
+
+  return { components, templates };
 }
 
 async function preloadFragment(element) {
-  const slot = element.querySelector('[slot="item"]');
-  const path = element.querySelector('[slot="item"] > div').textContent;
-  slot.innerHTML = '';
+  const item = element.querySelector('div > div');
+  const path = item.innerText;
 
   const url = new URL(`${path}.plain.html`, window.location.origin);
 
@@ -275,30 +393,61 @@ async function preloadFragment(element) {
       console.warn(`failed to preload fragment ${path}`);
     }
 
-    const content = await res.text();
-    slot.innerHTML = content;
+    item.innerHTML = await res.text();
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Loading fragment ${path} failed:`, error);
   }
 }
 
+function matchRoute({ route }) {
+  return route?.test(window.location.pathname) ?? false;
+}
+
 /**
  * Initializiation.
  */
 export default async function initialize() {
+  setup();
+
   // Eager load first image
-  eagerLoadFirstImage();
+  loadEagerImages();
 
-  // Load block resources
-  const { components, templates, fragments } = getBlockResources();
+  // Build hero brick
+  // buildHeroBrick();
 
-  await Promise.allSettled([...fragments].map(preloadFragment));
+  // Preload fragments
+  await Promise.allSettled(
+    [...document.querySelectorAll('.fragment')].map(preloadFragment),
+  );
 
-  const [, loadedComponents] = await Promise.allSettled([
+  // Load brick resources
+  const { components, templates } = getBrickResources();
+
+  const [loadedComponents] = await Promise.allSettled([
+    // bricks in the document
+    Promise.allSettled([...components].map(loadBrick)),
     Promise.allSettled([...templates].map(loadTemplate)),
-    Promise.allSettled([...components].map(loadBlock)),
+
+    // eager scripts
+    Promise.allSettled(
+      config.scripts
+        ?.filter(matchRoute)
+        .filter((s) => s.eager)
+        .map(({ path }) => loadJS(`${window.hlx.codeBasePath}${path}`)) || [],
+    ),
+
+    // eager styles
+    Promise.allSettled(
+      config.styles
+        ?.filter(matchRoute)
+        .filter((s) => s.eager)
+        .map(({ path }) => loadCSS(`${window.hlx.codeBasePath}${path}`)) || [],
+    ),
   ]);
+
+  // Decorate Root
+  decorateRoot();
 
   // Define custom elements
   loadedComponents.value.forEach(async ({ status, value }) => {
@@ -314,7 +463,6 @@ export default async function initialize() {
   document.body.dataset.status = 'loaded';
 
   // rest of EDS setup...
-  setup();
   sampleRUM('top');
 
   window.addEventListener('load', () => sampleRUM('load'));
@@ -329,38 +477,117 @@ export default async function initialize() {
   window.addEventListener('error', (event) => {
     sampleRUM('error', { source: event.filename, target: event.lineno });
   });
+
+  // Load lazy js
+  config.scripts
+    ?.filter(matchRoute)
+    .filter((s) => !s.eager)
+    .forEach(({ path }) => {
+      loadJS(`${window.hlx.codeBasePath}${path}`);
+    });
+
+  // Load lazy styles
+  config.styles
+    ?.filter(matchRoute)
+    .filter((s) => !s.eager)
+    .forEach(({ path }) => {
+      loadCSS(`${window.hlx.codeBasePath}${path}`);
+    });
 }
 
-// TODO: define inner web components if needed
-export class Block extends HTMLElement {
-  constructor(options = {}) {
+/**
+ * Simpler brick using aem-inject attributes in the
+ * HTML template to select the content to inject in it.
+ */
+export class Brick extends HTMLElement {
+  static injectFromCSSSelector(scope, elem) {
+    scope.querySelectorAll('*[aem-inject]')?.forEach((selector) => {
+      const attr = selector.getAttribute('aem-inject');
+
+      if (attr === '') {
+        selector.append(elem.cloneNode(true));
+      } else {
+        elem.querySelectorAll(attr).forEach((item) => {
+          const src = item.cloneNode(true);
+
+          if (src) {
+          // set loaded attribute
+            selector.append(src);
+          }
+        });
+      }
+
+      // remove the attribute so we don't try to inject it again
+      selector.removeAttribute('aem-inject');
+    });
+  }
+
+  static injectEachLoopFromCSSSelector(scope, elem) {
+    scope.querySelectorAll('*[aem-each]').forEach((each) => {
+      const parent = each.parentNode;
+
+      elem.querySelectorAll(each.getAttribute('aem-each')).forEach((item) => {
+        const clone = each.cloneNode(true);
+        const selfInjected = clone.getAttribute('aem-each-inject');
+
+        each.remove();
+
+        // Inject content from our template's CSS selectors
+        Brick.injectFromCSSSelector(clone, item);
+
+        // inject content
+        if (typeof selfInjected !== 'undefined') {
+          if (selfInjected === '') {
+            clone.append(item.cloneNode(true));
+          } else {
+            item.querySelectorAll(selfInjected).forEach((self) => {
+              clone.append(self.cloneNode(true));
+            });
+          }
+
+          // remove the attribute so we don't try to inject it again
+          clone.removeAttribute('aem-each-inject');
+        }
+
+        // remove the attribute so we don't try to inject it again
+        clone.removeAttribute('aem-each');
+
+        parent.append(clone);
+      });
+    });
+  }
+
+  constructor() {
     super();
 
-    this.values = options.mapValues ? new Map() : [];
-
     const id = this.tagName.toLowerCase();
-
-    const shadowRoot = this.attachShadow({ mode: 'open' });
 
     const template = document.getElementById(id);
 
     if (template) {
-      shadowRoot.appendChild(template.content.cloneNode(true));
-    }
+      const newContent = template.content.cloneNode(true);
 
-    const slots = this.querySelectorAll('[slot="item"]');
+      // Inject content from interations from our template's CSS selectors
+      Brick.injectEachLoopFromCSSSelector(newContent, this);
 
-    slots.forEach((element) => {
-      if (options.mapValues) {
-        const [key, value] = element.children;
+      // Inject content from our template's CSS selectors
+      Brick.injectFromCSSSelector(newContent, this);
 
-        this.values.set(key.innerText, value.innerHTML);
-
-        element.setAttribute('slot', key.innerText);
-        element.innerHTML = value.innerHTML;
-      } else {
-        this.values.push(element);
+      // Let derived classes inject more content if needed
+      if (typeof this.injectMoreContent === 'function') {
+        this.injectMoreContent(newContent);
       }
-    });
+
+      // Append content to shadow root or directly
+      if (template.getAttribute('shadowroot') === 'true') {
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.append(newContent);
+        this.root = this.shadowRoot;
+      } else {
+        this.innerHTML = '';
+        this.append(newContent);
+        this.root = this;
+      }
+    }
   }
 }
