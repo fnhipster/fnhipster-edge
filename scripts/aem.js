@@ -299,6 +299,8 @@ function loadEagerImages() {
   // Query for the first <picture> element in the DOM
   const pictureElement = document.querySelector('picture');
 
+  pictureElement.querySelector('img').setAttribute('loading', 'eager');
+
   if (!pictureElement) return;
 
   function getSrcSet() {
