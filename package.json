@@ -4,10 +4,12 @@
   "version": "0.1.0",
   "description": "fnhipster.com",
   "scripts": {
+    "postinstall": "npm run install-vendors",
     "dev": "aem up",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
-    "semantic-release": "semantic-release --debug"
+    "semantic-release": "semantic-release --debug",
+    "install-vendors": "npm install --prefix vendors"
   },
   "repository": {
     "type": "git",
