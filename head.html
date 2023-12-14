@@ -1,8 +1,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <script type="module">
-  import '/aem.config.js';
-
   /*
    * Copyright 2023 Adobe. All rights reserved.
    * This file is licensed to you under the Apache License, Version 2.0 (the "License");
@@ -15,9 +13,168 @@
    * governing permissions and limitations under the License.
    */
 
-  /* eslint-disable max-classes-per-file */
+  const config = {
+    scripts: [
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-app/fn-app.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-content/fn-content.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-header/fn-header.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-image/fn-image.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-link/fn-link.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-logo/fn-logo.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-columns/fn-columns.js',
+        eager: true,
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-hero/fn-hero.js',
+        eager: true,
+      },
+    ],
+    styles: [
+      { route: /.*/, path: '/vendors/fn-ui/styles/fn.css', eager: true },
+      // {
+      //   route: /.*/,
+      //   path: 'https://use.typekit.net/joe8rol.css',
+      // },
+    ],
+  };
 
-  import config from '../aem.config.js';
+  /**
+   * Simpler brick using aem-inject attributes in the
+   * HTML template to select the content to inject in it.
+   */
+  window.Brick = class Brick extends HTMLElement {
+    // TODO: Template Methods
+    // - aem-repeat
+    // - aem-append
+    // - aem-replace-with
+    static injectFromCSSSelector(scope, elem) {
+      scope.querySelectorAll('*[aem-inject]')?.forEach((selector) => {
+        const attr = selector.getAttribute('aem-inject');
+
+        if (attr === '') {
+          selector.append(elem.cloneNode(true));
+        } else {
+          elem.querySelectorAll(attr).forEach((item) => {
+            const src = item.cloneNode(true);
+
+            if (src) {
+              // set loaded attribute
+              selector.append(src);
+            }
+          });
+        }
+
+        // remove the attribute so we don't try to inject it again
+        selector.removeAttribute('aem-inject');
+      });
+    }
+
+    static injectEachLoopFromCSSSelector(scope, elem) {
+      scope.querySelectorAll('*[aem-each]').forEach((each) => {
+        const parent = each.parentNode;
+
+        elem.querySelectorAll(each.getAttribute('aem-each')).forEach((item) => {
+          const clone = each.cloneNode(true);
+          const selfInjected = clone.getAttribute('aem-each-inject');
+
+          each.remove();
+
+          // Inject content from our template's CSS selectors
+          Brick.injectFromCSSSelector(clone, item);
+
+          // inject content
+          if (typeof selfInjected !== 'undefined') {
+            if (selfInjected === '') {
+              clone.append(item.cloneNode(true));
+            } else {
+              item.querySelectorAll(selfInjected).forEach((self) => {
+                clone.append(self.cloneNode(true));
+              });
+            }
+
+            // remove the attribute so we don't try to inject it again
+            clone.removeAttribute('aem-each-inject');
+          }
+
+          // remove the attribute so we don't try to inject it again
+          clone.removeAttribute('aem-each');
+
+          parent.append(clone);
+        });
+      });
+    }
+
+    constructor() {
+      super();
+
+      const id = this.tagName.toLowerCase();
+
+      const template = document.getElementById(id);
+
+      if (template) {
+        const newContent = template.content.cloneNode(true);
+
+        // Inject content from interations from our template's CSS selectors
+        Brick.injectEachLoopFromCSSSelector(newContent, this);
+
+        // Inject content from our template's CSS selectors
+        Brick.injectFromCSSSelector(newContent, this);
+
+        // Let derived classes inject more content if needed
+        if (typeof this.injectMoreContent === 'function') {
+          this.injectMoreContent(newContent);
+        }
+
+        // Append content to shadow root or directly
+        if (template.getAttribute('shadowroot') === 'true') {
+          this.attachShadow({ mode: 'open' });
+          this.shadowRoot.append(newContent);
+          this.root = this.shadowRoot;
+        } else {
+          this.innerHTML = '';
+          this.append(newContent);
+          this.root = this;
+        }
+      }
+    }
+  };
 
   /**
    * Load HTML Template

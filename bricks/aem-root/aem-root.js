@@ -1,6 +1,4 @@
-import { Brick } from '../../scripts/aem.js';
-
-export default class Root extends Brick {
+export default class Root extends window.Brick {
   connectedCallback() {
     const content = this.querySelector('fn-content')?.shadowRoot?.querySelector('main');
 
