@@ -7,7 +7,8 @@
     "dev": "aem up",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
-    "semantic-release": "semantic-release --debug"
+    "semantic-release": "semantic-release --debug",
+    "postinstall": "cp -r node_modules/@fnhipster/fn-ui vendors/."
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "stylelint-config-standard": "30.0.1"
   },
   "dependencies": {
+    "@fnhipster/fn-ui": "latest",
     "wrangler": "^3.17.1"
   }
 }
