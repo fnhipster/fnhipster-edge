@@ -20,7 +20,7 @@ export default {
   styles: [
     {
       route: /.*/,
-      path: 'https://unpkg.com/@fnhipster@0.1.1/fn-ui/styles/fn.css',
+      path: 'https://unpkg.com/@fnhipster/fn-ui@0.1.1/styles/fn.css',
       // path: 'http://localhost:6006/styles/fn.css',
       eager: true,
     },
