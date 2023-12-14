@@ -1,8 +1,0 @@
-{
-    "name": "vendors",
-    "private": true,
-    "version": "0.1.0",
-    "dependencies": {
-        "@fnhipster/fn-ui": "latest"
-    }
-}
