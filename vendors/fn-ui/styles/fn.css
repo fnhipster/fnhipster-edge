@@ -1,0 +1,39 @@
+:root {
+  /* Colors */
+  --color-fg-rgb: 255, 176, 0;
+  --color-bg-rgb: 17, 17, 17;
+  --color-fg: rgb(var(--color-fg-rgb));
+  --color-bg: rgb(var(--color-bg-rgb));
+  --color-bg-pattern: linear-gradient(0deg,
+      rgba(var(--color-fg-rgb), 0.02) 50%,
+      transparent 50%) center / 5px 5px,
+    var(--color-bg) 50%;
+
+  /* Typography */
+  --typography-body: "lexia-mono-variable", sans-serif;
+  --typography-heading: "lores-9-wide-bold-alt-oaklan", monospace;
+  --typography-accent: "lores-15-narrow", monospace;
+
+
+  /* Spacing */
+  --spacing-xs: 0.64rem;
+  --spacing-sm: 1.3rem;
+  --spacing-md: 2.6rem;
+  --spacing-lg: 5.1rem;
+  --spacing-xl: 10.2rem;
+
+  /* Margins */
+  --margin: 2rem;
+}
+
+html {
+  color: var(--color-fg);
+  font-size: 62.5%;
+  background-color: var(--color-bg);
+  background: var(--color-bg-pattern);
+}
+
+body {
+  margin: 0;
+  font-size: 10px;
+}
