@@ -2,14 +2,14 @@ export default {
   scripts: [
     {
       route: /.*/,
-      path: '/vendors/node_modules/@fnhipster/fn-ui/components/index.js',
+      path: '/vendors/@fnhipster/fn-ui/components/index.js',
       eager: true,
     },
   ],
   styles: [
     {
       route: /.*/,
-      path: '/vendors/node_modules/@fnhipster/fn-ui/styles/fn.css',
+      path: '/vendors/@fnhipster/fn-ui/styles/fn.css',
       eager: true,
     },
     {

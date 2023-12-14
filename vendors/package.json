@@ -1,0 +1,13 @@
+{
+    "name": "fnhipster",
+    "version": "1.0.0",
+    "description": "",
+    "author": "@fnhipster",
+    "license": "ISC",
+    "scripts": {
+        "postinstall": "cp -r node_modules/* ."
+    },
+    "dependencies": {
+        "@fnhipster/fn-ui": "latest"
+    }
+}

@@ -9,7 +9,7 @@
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
     "semantic-release": "semantic-release --debug",
-    "install-vendors": "mkdir vendors && npm install --prefix vendors && mv vendors/node_modules/* vendors/. && rm -rf vendors/node_modules"
+    "install-vendors": "npm install --prefix vendors"
   },
   "repository": {
     "type": "git",
