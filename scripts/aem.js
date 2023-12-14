@@ -117,33 +117,32 @@ async function loadJS(src) {
   });
 }
 
-// TODO: Build Hero
 /**
  * Builds hero brick and prepends to main in a new section.
  * @param {Element} main The container element
  */
-// function buildHeroBrick() {
-//   const main = document.querySelector('main');
-//   const h1 = main.querySelector('main h1');
-//   const picture = main.querySelector('main p > picture');
+function buildHeroBrick() {
+  const main = document.querySelector('main');
+  const h1 = main.querySelector('main h1');
+  const picture = main.querySelector('main p > picture');
 
-//   if (
-//     h1
-//     && picture
-//     // eslint-disable-next-line no-bitwise
-//     && h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING
-//   ) {
-//     const section = document.createElement('div');
-//     section.classList.add('hero');
-//     section.append(picture.cloneNode(true));
-//     section.append(h1.cloneNode(true));
+  if (
+    h1
+    && picture
+    // eslint-disable-next-line no-bitwise
+    && h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING
+  ) {
+    const section = document.createElement('div');
+    section.classList.add('hero');
+    section.append(picture.cloneNode(true));
+    section.append(h1.cloneNode(true));
 
-//     picture.parentElement.remove();
-//     h1.remove();
+    picture.parentElement.remove();
+    h1.remove();
 
-//     main.prepend(section);
-//   }
-// }
+    main.prepend(section);
+  }
+}
 
 /**
  * Decorate root.
@@ -417,7 +416,7 @@ export default async function initialize() {
   loadEagerImages();
 
   // Build hero brick
-  // buildHeroBrick();
+  buildHeroBrick();
 
   // Preload fragments
   await Promise.allSettled(
