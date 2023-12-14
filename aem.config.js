@@ -24,9 +24,9 @@ export default {
       // path: 'http://localhost:6006/styles/fn.css',
       eager: true,
     },
-    {
-      route: /.*/,
-      path: 'https://use.typekit.net/joe8rol.css',
-    },
+    // {
+    //   route: /.*/,
+    //   path: 'https://use.typekit.net/joe8rol.css',
+    // },
   ],
 };
