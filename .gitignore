@@ -2,7 +2,6 @@
 coverage/*
 logs/*
 node_modules
-vendors
 .wrangler
 
 helix-importer-ui
