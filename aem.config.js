@@ -2,7 +2,7 @@ export default {
   scripts: [
     {
       route: /.*/,
-      path: 'https://cdn.jsdelivr.net/npm/@fnhipster/fn-ui/components/index.min.js',
+      path: 'https://esm.sh/@fnhipster/fn-ui/components/index.js',
       // path: 'http://localhost:6006/components/index.js',
       eager: true,
     },
@@ -10,7 +10,7 @@ export default {
   styles: [
     {
       route: /.*/,
-      path: 'https://cdn.jsdelivr.net/npm/@fnhipster/fn-ui/styles/fn.min.css',
+      path: 'https://esm.sh/@fnhipster/fn-ui/styles/fn.css',
       // path: 'http://localhost:6006/styles/fn.css',
       eager: true,
     },
