@@ -14,5 +14,7 @@ export default class PageMetadata extends Brick {
         document.documentElement.setAttribute(`data-${key.replace(' ', '-')}`, value);
       }
     });
+
+    this.innerHTML = '';
   }
 }
