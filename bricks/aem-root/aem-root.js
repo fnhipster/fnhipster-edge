@@ -2,7 +2,9 @@ import { Brick } from '../../scripts/aem.js';
 
 export default class Root extends Brick {
   connectedCallback() {
-    const content = this.querySelector('fn-content').shadowRoot.querySelector('main');
+    const content = this.querySelector('fn-content')?.shadowRoot?.querySelector('main');
+
+    if (!content) return;
 
     // Decorate Sections
     content.querySelectorAll(':scope > div').forEach((section) => {

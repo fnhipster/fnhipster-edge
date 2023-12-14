@@ -117,6 +117,7 @@ async function loadJS(src) {
   });
 }
 
+// TODO: Build Hero
 /**
  * Builds hero brick and prepends to main in a new section.
  * @param {Element} main The container element
@@ -502,6 +503,10 @@ export default async function initialize() {
  * HTML template to select the content to inject in it.
  */
 export class Brick extends HTMLElement {
+  // TODO: Template Methods
+  // - aem-repeat
+  // - aem-append
+  // - aem-replace-with
   static injectFromCSSSelector(scope, elem) {
     scope.querySelectorAll('*[aem-inject]')?.forEach((selector) => {
       const attr = selector.getAttribute('aem-inject');
