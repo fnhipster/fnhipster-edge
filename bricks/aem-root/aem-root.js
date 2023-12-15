@@ -26,7 +26,8 @@ export default class Root extends window.Brick {
     }
   }
 
-  // Decorate Images
+  /** Decorators */
+
   static decorateImage(elem) {
     if (elem.dataset.decorated || elem.parentElement.tagName === 'FN-IMAGE') return;
 

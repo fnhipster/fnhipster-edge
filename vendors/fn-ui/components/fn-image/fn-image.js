@@ -47,29 +47,29 @@ export default class Image extends HTMLElement {
   }
 
   connectedCallback() {
-    this.slot = this.shadowRoot.querySelector('slot');
-
-    this.slot?.addEventListener('slotchange', () => {
-      const wrapper = this.shadowRoot.querySelector('.wrapper');
-      const child = this.querySelector(':scope > img, :scope > picture');
-      const img = this.querySelector('img');
-
-      if (!img) return;
-
-      // glow effect
-      const glow = child.cloneNode(true);
-      glow.classList.add('glow');
-      glow.setAttribute('aria-hidden', 'true');
-      wrapper.append(glow);
-
-      img.addEventListener('load', () => {
-        wrapper.style.opacity = 1;
-      });
-    });
+    this.shadowRoot.querySelector('slot').addEventListener('slotchange', this.initialize.bind(this));
   }
 
   disconnectedCallback() {
-    this.slot?.removeEventListener('slotchange');
+    this.shadowRoot.querySelector('slot').removeEventListener('slotchange', this.initialize.bind(this));
+  }
+
+  initialize() {
+    const wrapper = this.shadowRoot.querySelector('.wrapper');
+    const child = this.querySelector(':scope > img, :scope > picture');
+    const img = this.querySelector('img');
+
+    if (!img) return;
+
+    // glow effect
+    const glow = child.cloneNode(true);
+    glow.classList.add('glow');
+    glow.setAttribute('aria-hidden', 'true');
+    wrapper.append(glow);
+
+    img.addEventListener('load', () => {
+      wrapper.style.opacity = 1;
+    });
   }
 }
 

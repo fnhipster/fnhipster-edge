@@ -54,7 +54,7 @@ export default class Footer extends HTMLElement {
 
   renderMessage(message) {
     const element = this.shadowRoot.querySelector('fn-binary');
-    element.innerHTML = message;
+    element.setAttribute('message', message);
   }
 }
 

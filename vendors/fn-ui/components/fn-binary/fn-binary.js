@@ -17,13 +17,9 @@ export default class Binary extends HTMLElement {
     });
   });
 
-  mutationObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList' && mutation.target === this) {
-        this.initialize();
-      }
-    });
-  });
+  static get observedAttributes() {
+    return ['message'];
+  }
 
   constructor() {
     super();
@@ -32,14 +28,6 @@ export default class Binary extends HTMLElement {
   }
 
   connectedCallback() {
-    this.initialize();
-
-    // observe changes to innerHTML
-    this.mutationObserver.observe(this, {
-      childList: true,
-      subtree: true,
-    });
-
     // observe intersection
     this.intersectionObserver.observe(this);
 
@@ -51,9 +39,6 @@ export default class Binary extends HTMLElement {
   disconnectedCallback() {
     this.stop();
 
-    // stop observing innerHTML
-    this.mutationObserver.disconnect();
-
     // stop observing intersection
     this.intersectionObserver.unobserve(this);
 
@@ -62,12 +47,16 @@ export default class Binary extends HTMLElement {
     this.removeEventListener('mouseleave', this.play);
   }
 
-  initialize() {
-    const message = this.textContent.trim();
+  attributeChangedCallback(name, prev, next) {
+    if (prev === next) return;
 
-    this.binary = message
-      .split('')
-      .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'));
+    if (name === 'message') {
+      const message = this.getAttribute('message');
+
+      this.binary = message
+        .split('')
+        .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'));
+    }
   }
 
   play() {
