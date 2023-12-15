@@ -15,7 +15,6 @@ export default class App extends HTMLElement {
     this.shadowRoot.innerHTML = /* html */ `
       <style>
           :host {
-            animation: glitch 0.5s linear;  
             box-sizing: border-box;
             display: grid; 
             font-size: 10px;
@@ -26,50 +25,6 @@ export default class App extends HTMLElement {
             padding: 0 var(--margin); 
             transform-origin: top center; 
             width: 100%; 
-          }
-
-          @keyframes glitch {
-            /* Fade In */
-            0% {
-              opacity: 0;
-            }
-            70% {
-              opacity: 1;
-            }
-          
-            /* Glitch */
-            0%,
-            40%,
-            44%,
-            58%,
-            61%,
-            65%,
-            69%,
-            73%,
-            100% {
-              transform: skewX(0deg);
-            }
-            41% {
-              transform: skewX(1deg);
-            }
-            42% {
-              transform: skewX(-1deg);
-            }
-            59% {
-              transform: skewX(3.5deg) skewY(1deg);
-            }
-            60% {
-              transform: skewX(-3.5deg) skewY(-1deg);
-            }
-            63% {
-              transform: skewX(1deg) skewY(-0.5deg);
-            }
-            70% {
-              transform: skewX(-3deg) skewY(-2deg);
-            }
-            71% {
-              transform: skewX(1deg) skewY(-1deg);
-            }
           }
       </style>
 
