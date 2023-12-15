@@ -28,15 +28,7 @@ export default class App extends HTMLElement {
             width: 100%; 
           }
 
-          @keyframes glitch {
-            /* Fade In */
-            0% {
-              opacity: 0;
-            }
-            25% {
-              opacity: 1;
-            }
-          
+          @keyframes glitch {          
             /* Glitch */
             0%,
             40%,
