@@ -5,19 +5,31 @@
 
   initialize({
     // ESM Modules
-    modules: [],
+    modules: [
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/index.js',
+        loading: 'eager',
+      },
+    ],
 
     // Scripts
     scripts: [],
 
     // Styles
-    styles: [],
+    styles: [
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/styles/fn.css',
+        loading: 'eager',
+      },
+    ],
   });
 </script>
 
-<script type="module" src="/vendors/fn-ui/components/index.js"></script>
+<!-- <script type="module" src="/vendors/fn-ui/components/index.js"></script> -->
 
-<link rel="stylesheet" href="/vendors/fn-ui/styles/fn.css" />
+<!-- <link rel="stylesheet" href="/vendors/fn-ui/styles/fn.css" /> -->
 
 <style>
   body:not([data-status='loaded']) {
