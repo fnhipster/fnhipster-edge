@@ -4,6 +4,7 @@
   import initialize from '/scripts/aem.js';
 
   initialize({
+    // ESM Modules
     modules: [
       {
         route: /.*/,
@@ -11,10 +12,13 @@
         eager: true,
       },
     ],
+
+    // Scripts
     scripts: [],
+
+    // Styles
     styles: [
       { route: /.*/, path: '/vendors/fn-ui/styles/fn.css', eager: true },
-      { route: /.*/, path: 'https://use.typekit.net/joe8rol.css' },
     ],
   });
 </script>
