@@ -432,6 +432,9 @@ function matchRoute({ route }) {
  * @returns {Promise<void>} Promise that resolves when the page is initialized
  */
 export default async function initialize(config = {}) {
+  // Hide page until fully loaded
+  document.body.style.display = 'none';
+
   // Setup
   setup();
 
@@ -495,6 +498,7 @@ export default async function initialize(config = {}) {
 
   // Page is fully loaded
   document.body.dataset.status = 'loaded';
+  document.body.style.removeProperty('display');
 
   // rest of EDS setup...
   sampleRUM('top');
