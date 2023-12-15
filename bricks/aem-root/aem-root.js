@@ -9,7 +9,7 @@ export default class Root extends window.Brick {
       section.classList.add('section');
     });
 
-    content.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
+    // content.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
     content.querySelectorAll('a:not([data-decorated])')?.forEach(Root.decorateLink);
   }
 
