@@ -4,7 +4,7 @@
   import initialize from '/scripts/aem.js';
 
   initialize({
-    scripts: [
+    modules: [
       {
         route: /.*/,
         path: '/vendors/fn-ui/components/fn-app/fn-app.js',
@@ -56,6 +56,7 @@
         eager: true,
       },
     ],
+    scripts: [],
     styles: [
       // { route: /.*/, path: '/vendors/fn-ui/styles/fn.css', eager: true },
       // {

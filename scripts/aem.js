@@ -11,9 +11,9 @@
  */
 
 /**
- * Load HTML Template
+ * Load HTML Template.
  * @param {string} name The name of the template
- * @returns {Promise<HTMLTemplateElement>} The template
+ * @returns {Promise<HTMLElement>} The template
  */
 async function loadTemplate(name) {
   const href = `${window.hlx.codeBasePath}/bricks/${name}/${name}.html`;
@@ -53,8 +53,8 @@ async function loadTemplate(name) {
 }
 
 /**
- * Load Brick
- * @param {string} href The path to the brick
+ * Load Brick.
+ * @param {string} name The name of the brick
  * @returns {Promise<HTMLElement>} The brick
  */
 async function loadBrick(name) {
@@ -79,8 +79,9 @@ async function loadBrick(name) {
 }
 
 /**
- * Loads a CSS file.
- * @param {string} href URL to the CSS file
+ * Load a CSS file
+ * @param {string} href URL to the CSS file.
+ * @returns {Promise<void>} Promise that resolves when the CSS file is loaded
  */
 async function loadCSS(href) {
   return new Promise((resolve, reject) => {
@@ -97,25 +98,47 @@ async function loadCSS(href) {
   });
 }
 
-/** Loads a JS file
+/**
+ * Loads a non module JS file.
  * @param {string} src URL to the JS file
- *
+ * @returns {Promise<void>} Promise that resolves when the JS file is loaded
  */
-async function loadJS(src) {
+async function loadScript(src) {
   return new Promise((resolve, reject) => {
-    import(src)
-      .then(resolve)
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.warn(`Failed to load script ${src}`, error);
-        reject(error);
-      });
+    if (!document.querySelector(`head > script[src="${src}"]`)) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.append(script);
+    } else {
+      resolve();
+    }
+  });
+}
+
+/**
+ * Loads a ES Module file.
+ * @param {string} src URL to the JS file
+ * @returns {Promise<void>} Promise that resolves when the JS file is loaded
+ */
+async function loadESModule(src) {
+  return new Promise((resolve, reject) => {
+    if (!document.querySelector(`head > script[src="${src}"]`)) {
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.append(script);
+    } else {
+      resolve();
+    }
   });
 }
 
 /**
  * Builds hero brick and prepends to main in a new section.
- * @param {Element} main The container element
  */
 function buildHeroBrick() {
   const main = document.querySelector('main');
@@ -141,7 +164,7 @@ function buildHeroBrick() {
 }
 
 /**
- * Decorate root.
+ * Decorate root with aem-root.
  */
 function decorateRoot() {
   const root = document.createElement('aem-root');
@@ -276,53 +299,48 @@ function setup() {
   window.hlx.RUM_MASK_URL = 'full';
   window.hlx.codeBasePath = '';
   window.hlx.lighthouse = new URLSearchParams(window.location.search).get('lighthouse') === 'on';
-
-  const scriptEl = document.querySelector('script[src$="/scripts/scripts.js"]');
-  if (scriptEl) {
-    try {
-      [window.hlx.codeBasePath] = new URL(scriptEl.src).pathname.split(
-        '/scripts/scripts.js',
-      );
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
 }
 
-/** Eager load first image */
+/**
+ * Load first image eagerly.
+ */
 function loadEagerImages() {
   // Query for the first <picture> element in the DOM
   const pictureElement = document.querySelector('picture');
 
   pictureElement.querySelector('img').setAttribute('loading', 'eager');
 
-  if (!pictureElement) return;
+  // if (!pictureElement) return;
 
-  function getSrcSet() {
-    const sourceElement = Array.from(
-      pictureElement.querySelectorAll('source'),
-    ).find((source) => {
-      const mediaQuery = source.getAttribute('media');
-      return !mediaQuery || window.matchMedia(mediaQuery).matches;
-    });
+  // function getSrcSet() {
+  //   const sourceElement = Array.from(
+  //     pictureElement.querySelectorAll('source'),
+  //   ).find((source) => {
+  //     const mediaQuery = source.getAttribute('media');
+  //     return !mediaQuery || window.matchMedia(mediaQuery).matches;
+  //   });
 
-    const source = (sourceElement && sourceElement.getAttribute('srcset'))
-      || pictureElement.querySelector('img').getAttribute('src');
+  //   const source = (sourceElement && sourceElement.getAttribute('srcset'))
+  //     || pictureElement.querySelector('img').getAttribute('src');
 
-    return source;
-  }
+  //   return source;
+  // }
 
-  // Create the link element
-  const linkElement = document.createElement('link');
-  linkElement.rel = 'preload';
-  linkElement.as = 'image';
-  linkElement.href = getSrcSet();
+  // // Create the link element
+  // const linkElement = document.createElement('link');
+  // linkElement.rel = 'preload';
+  // linkElement.as = 'image';
+  // linkElement.href = getSrcSet();
 
-  // Append the link element to the head of the document
-  document.head.appendChild(linkElement);
+  // // Append the link element to the head of the document
+  // document.head.appendChild(linkElement);
 }
 
+/**
+ * Transforms a block into a brick.
+ * @param {HTMLElement} block The block to transform
+ * @returns {HTMLElement} The brick
+ */
 function transformToBrick(block) {
   const { classList } = block;
   const blockName = classList[0];
@@ -339,17 +357,13 @@ function transformToBrick(block) {
   return brick;
 }
 
-function getBrickResources(includedBricks = []) {
+/**
+ * Get brick resources.
+ * @returns {Object} The brick resources
+ */
+function getBrickResources() {
   const components = new Set(['aem-root']);
   const templates = new Set(['aem-root']);
-
-  // Load Bricks from config
-  includedBricks?.forEach((brick) => {
-    components.add(brick.name);
-    if (brick.template !== false) {
-      templates.add(brick.name);
-    }
-  });
 
   // Load Bricks from DOM
   document.body
@@ -377,6 +391,11 @@ function getBrickResources(includedBricks = []) {
   return { components, templates };
 }
 
+/**
+ * Preload fragment.
+ * @param {HTMLElement} element The fragment element
+ * @returns {Promise<void>} Promise that resolves when the fragment is loaded
+ */
 async function preloadFragment(element) {
   const item = element.querySelector('div > div');
   const path = item.innerText;
@@ -398,18 +417,32 @@ async function preloadFragment(element) {
   }
 }
 
+/**
+ * Match route.
+ * @param {Object} param0 The route
+ * @returns {boolean} Whether the route matches the current path
+ */
 function matchRoute({ route }) {
   return route?.test(window.location.pathname) ?? false;
 }
 
+/**
+ * Initialize.
+ * @param {Object} config The config
+ * @returns {Promise<void>} Promise that resolves when the page is initialized
+ */
 export default async function initialize(config = {}) {
+  // Setup
   setup();
 
-  // Eager load first image
+  // Load first image eagerly
   loadEagerImages();
 
   // Build hero brick
   buildHeroBrick();
+
+  // Decorate Root
+  decorateRoot();
 
   // Preload fragments
   await Promise.allSettled(
@@ -417,19 +450,28 @@ export default async function initialize(config = {}) {
   );
 
   // Load brick resources
-  const { components, templates } = getBrickResources(config.bricks);
+  const { components, templates } = getBrickResources();
 
+  // TODO: abstract this into a function
   const [loadedComponents] = await Promise.allSettled([
     // bricks in the document
     Promise.allSettled([...components].map(loadBrick)),
     Promise.allSettled([...templates].map(loadTemplate)),
 
-    // eager scripts
+    // eager modules
     Promise.allSettled(
-      config.scripts
+      config.modules
         ?.filter(matchRoute)
         .filter((s) => s.eager)
-        .map(({ path }) => loadJS(`${window.hlx.codeBasePath}${path}`)) || [],
+        .map(({ path }) => loadESModule(`${window.hlx.codeBasePath}${path}`)) || [],
+    ),
+
+    // eager scripts
+    Promise.allSettled(
+      config.modules
+        ?.filter(matchRoute)
+        .filter((s) => s.eager)
+        .map(({ path }) => loadScript(`${window.hlx.codeBasePath}${path}`)) || [],
     ),
 
     // eager styles
@@ -440,9 +482,6 @@ export default async function initialize(config = {}) {
         .map(({ path }) => loadCSS(`${window.hlx.codeBasePath}${path}`)) || [],
     ),
   ]);
-
-  // Decorate Root
-  decorateRoot();
 
   // Define custom elements
   loadedComponents.value.forEach(async ({ status, value }) => {
@@ -473,12 +512,20 @@ export default async function initialize(config = {}) {
     sampleRUM('error', { source: event.filename, target: event.lineno });
   });
 
-  // Load lazy js
+  // Load lazy scripts
+  config.modules
+    ?.filter(matchRoute)
+    .filter((s) => !s.eager)
+    .forEach(({ path }) => {
+      loadESModule(`${window.hlx.codeBasePath}${path}`);
+    });
+
+  // Load lazy scripts
   config.scripts
     ?.filter(matchRoute)
     .filter((s) => !s.eager)
     .forEach(({ path }) => {
-      loadJS(`${window.hlx.codeBasePath}${path}`);
+      loadScript(`${window.hlx.codeBasePath}${path}`);
     });
 
   // Load lazy styles

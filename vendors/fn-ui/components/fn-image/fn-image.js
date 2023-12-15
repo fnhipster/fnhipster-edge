@@ -47,8 +47,6 @@ export default class Image extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log('fn-image connectedCallback');
-
     this.slot = this.shadowRoot.querySelector('slot');
 
     this.slot?.addEventListener('slotchange', () => {
@@ -65,8 +63,6 @@ export default class Image extends HTMLElement {
       wrapper.append(glow);
 
       img.addEventListener('load', () => {
-        console.log('image loaded', img.src);
-
         wrapper.style.opacity = 1;
       });
     });
