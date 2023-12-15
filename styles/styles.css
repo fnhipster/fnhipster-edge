@@ -1,3 +1,3 @@
-/* body:not([data-status='loaded']) {
+body:not([data-status='loaded']) {
   display: none;
-} */
+}
