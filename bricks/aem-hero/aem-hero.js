@@ -1,4 +1,6 @@
-export default class Hero extends window.Brick {
+import { Brick } from '../../scripts/aem.js';
+
+export default class Hero extends Brick {
   injectMoreContent(elem) {
     const title = this.querySelector('h1').innerHTML;
 

@@ -1,4 +1,6 @@
-export default class PageMetadata extends window.Brick {
+import { Brick } from '../../scripts/aem.js';
+
+export default class PageMetadata extends Brick {
   connectedCallback() {
     [...this.children].forEach((child) => {
       const key = child.children[0].textContent.toLowerCase();

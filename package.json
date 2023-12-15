@@ -4,11 +4,12 @@
   "version": "0.1.0",
   "description": "fnhipster.com",
   "scripts": {
-    "dev": "aem up",
+    "cfw": "(cd cloudflare-worker && npm start)",
+    "deploy:cfw": "(cd cloudflare-worker && npm run deploy)",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
     "semantic-release": "semantic-release --debug",
-    "postinstall": "cp -r node_modules/@fnhipster/fn-ui vendors/."
+    "postinstall": "cp -r node_modules/@fnhipster/fn-ui vendors/. ; (cd cloudflare-worker && npm install)"
   },
   "repository": {
     "type": "git",

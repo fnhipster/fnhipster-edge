@@ -462,7 +462,7 @@ export default async function initialize(config = {}) {
     Promise.allSettled(
       config.modules
         ?.filter(matchRoute)
-        .filter((s) => s.eager)
+        .filter(({ loading }) => loading === 'eager')
         .map(({ path }) => loadESModule(`${window.hlx.codeBasePath}${path}`)) || [],
     ),
 
@@ -470,7 +470,7 @@ export default async function initialize(config = {}) {
     Promise.allSettled(
       config.modules
         ?.filter(matchRoute)
-        .filter((s) => s.eager)
+        .filter(({ loading }) => loading === 'eager')
         .map(({ path }) => loadScript(`${window.hlx.codeBasePath}${path}`)) || [],
     ),
 
@@ -478,8 +478,8 @@ export default async function initialize(config = {}) {
     Promise.allSettled(
       config.styles
         ?.filter(matchRoute)
-        .filter((s) => s.eager)
-        .map(({ path }) => loadCSS(`${window.hlx.codeBasePath}${path}`)) || [],
+        .filter(({ loading }) => loading === 'eager')
+        .map(({ path }) => loadCSS(`${window.hlx.codeBasePath}${path}`), true) || [],
     ),
   ]);
 
@@ -515,7 +515,7 @@ export default async function initialize(config = {}) {
   // Load lazy scripts
   config.modules
     ?.filter(matchRoute)
-    .filter((s) => !s.eager)
+    .filter(({ loading }) => loading !== 'eager')
     .forEach(({ path }) => {
       loadESModule(`${window.hlx.codeBasePath}${path}`);
     });
@@ -523,7 +523,7 @@ export default async function initialize(config = {}) {
   // Load lazy scripts
   config.scripts
     ?.filter(matchRoute)
-    .filter((s) => !s.eager)
+    .filter(({ loading }) => loading !== 'eager')
     .forEach(({ path }) => {
       loadScript(`${window.hlx.codeBasePath}${path}`);
     });
@@ -531,7 +531,7 @@ export default async function initialize(config = {}) {
   // Load lazy styles
   config.styles
     ?.filter(matchRoute)
-    .filter((s) => !s.eager)
+    .filter(({ loading }) => loading !== 'eager')
     .forEach(({ path }) => {
       loadCSS(`${window.hlx.codeBasePath}${path}`);
     });
@@ -541,7 +541,7 @@ export default async function initialize(config = {}) {
  * Simpler brick using aem-inject attributes in the
  * HTML template to select the content to inject in it.
  */
-window.Brick = class Brick extends HTMLElement {
+export class Brick extends HTMLElement {
   // TODO: Template Methods
   // - aem-repeat
   // - aem-append
@@ -636,4 +636,4 @@ window.Brick = class Brick extends HTMLElement {
       }
     }
   }
-};
+}

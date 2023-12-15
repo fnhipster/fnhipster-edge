@@ -1,4 +1,6 @@
-export default class Root extends window.Brick {
+import { Brick } from '../../scripts/aem.js';
+
+export default class Root extends Brick {
   mutationObserver = new MutationObserver((event) => {
     event.forEach((mutation) => {
       mutation.addedNodes?.forEach((node) => {
