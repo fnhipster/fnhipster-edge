@@ -1,7 +1,7 @@
 const tagName = 'fn-image';
 
 export default class Image extends HTMLElement {
-  initialized = false;
+  // initialized = false;
 
   constructor() {
     super();
@@ -58,22 +58,23 @@ export default class Image extends HTMLElement {
     this.initialize();
 
     // observe changes to innerHTML
-    this.mutationObserver.observe(this, {
-      childList: true,
-      subtree: true,
-    });
+    // this.mutationObserver.observe(this, {
+    //   childList: true,
+    //   subtree: true,
+    // });
   }
 
   initialize() {
-    if (this.initialized) return;
-
-    console.log('Image initialized', this.getAttribute('src'));
+    // if (this.initialized) return;
 
     const wrapper = this.shadowRoot.querySelector('.wrapper');
     const child = this.querySelector(':scope > img, :scope > picture');
     const img = this.querySelector('img');
 
+    
     if (!img) return;
+    
+    console.log('Image initialized', img.getAttribute('src'));
 
     // glow effect
     const glow = child.cloneNode(true);
@@ -84,13 +85,13 @@ export default class Image extends HTMLElement {
     img.addEventListener('load', () => {
       wrapper.style.opacity = 1;
     });
-    
-    this.initialized = true;
+
+    // this.initialized = true;
   }
 
-  disconnectedCallback() {
-    this.mutationObserver.disconnect();
-  }
+  // disconnectedCallback() {
+  //   this.mutationObserver.disconnect();
+  // }
 }
 
 if (!customElements.get(tagName)) customElements.define(tagName, Image);
