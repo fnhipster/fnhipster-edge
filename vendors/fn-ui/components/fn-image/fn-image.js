@@ -83,8 +83,9 @@ export default class Image extends HTMLElement {
 
     img.addEventListener('load', () => {
       wrapper.style.opacity = 1;
-      this.initialized = true;
     });
+    
+    this.initialized = true;
   }
 
   disconnectedCallback() {
