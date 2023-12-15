@@ -20,7 +20,7 @@ export default class Image extends HTMLElement {
           position: relative;
           display: inline-block;
           opacity: 0;
-          transition: opacity 0.3s ease-in-out;
+          transition: opacity 100ms ease-in-out;
         }
 
         .glow {
@@ -62,25 +62,12 @@ export default class Image extends HTMLElement {
       childList: true,
       subtree: true,
     });
-    //   const wrapper = this.shadowRoot.querySelector('.wrapper');
-    //   const child = this.querySelector(':scope > img, :scope > picture');
-    //   const img = this.querySelector('img');
-
-    //   if (!img) return;
-
-    //   // glow effect
-    //   const glow = child.cloneNode(true);
-    //   glow.classList.add('glow');
-    //   glow.setAttribute('aria-hidden', 'true');
-    //   wrapper.append(glow);
-
-  //   img.addEventListener('load', () => {
-  //     wrapper.style.opacity = 1;
-  //   });
   }
 
   initialize() {
     if (this.initialized) return;
+
+    console.log('Image initialized', this.getAttribute('src'));
 
     const wrapper = this.shadowRoot.querySelector('.wrapper');
     const child = this.querySelector(':scope > img, :scope > picture');
