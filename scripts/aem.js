@@ -462,7 +462,7 @@ export default async function initialize(config = {}) {
     Promise.allSettled(
       config.modules
         ?.filter(matchRoute)
-        .filter(({ loading }) => loading === 'eager')
+        .filter(({ lazy }) => !lazy)
         .map(({ path }) => loadESModule(`${window.hlx.codeBasePath}${path}`)) || [],
     ),
 
@@ -470,7 +470,7 @@ export default async function initialize(config = {}) {
     Promise.allSettled(
       config.modules
         ?.filter(matchRoute)
-        .filter(({ loading }) => loading === 'eager')
+        .filter(({ lazy }) => !lazy)
         .map(({ path }) => loadScript(`${window.hlx.codeBasePath}${path}`)) || [],
     ),
 
@@ -478,7 +478,7 @@ export default async function initialize(config = {}) {
     Promise.allSettled(
       config.styles
         ?.filter(matchRoute)
-        .filter(({ loading }) => loading === 'eager')
+        .filter(({ lazy }) => !lazy)
         .map(({ path }) => loadCSS(`${window.hlx.codeBasePath}${path}`), true) || [],
     ),
   ]);
@@ -515,7 +515,7 @@ export default async function initialize(config = {}) {
   // Load lazy scripts
   config.modules
     ?.filter(matchRoute)
-    .filter(({ loading }) => loading !== 'eager')
+    .filter(({ lazy }) => lazy)
     .forEach(({ path }) => {
       loadESModule(`${window.hlx.codeBasePath}${path}`);
     });
@@ -523,7 +523,7 @@ export default async function initialize(config = {}) {
   // Load lazy scripts
   config.scripts
     ?.filter(matchRoute)
-    .filter(({ loading }) => loading !== 'eager')
+    .filter(({ lazy }) => lazy)
     .forEach(({ path }) => {
       loadScript(`${window.hlx.codeBasePath}${path}`);
     });
@@ -531,7 +531,7 @@ export default async function initialize(config = {}) {
   // Load lazy styles
   config.styles
     ?.filter(matchRoute)
-    .filter(({ loading }) => loading !== 'eager')
+    .filter(({ lazy }) => lazy)
     .forEach(({ path }) => {
       loadCSS(`${window.hlx.codeBasePath}${path}`);
     });
