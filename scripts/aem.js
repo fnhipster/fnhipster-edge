@@ -10,10 +10,6 @@
  * governing permissions and limitations under the License.
  */
 
-/* eslint-disable max-classes-per-file */
-
-import config from '../aem.config.js';
-
 /**
  * Load HTML Template
  * @param {string} name The name of the template
@@ -343,12 +339,12 @@ function transformToBrick(block) {
   return brick;
 }
 
-function getBrickResources() {
+function getBrickResources(includedBricks = []) {
   const components = new Set(['aem-root']);
   const templates = new Set(['aem-root']);
 
   // Load Bricks from config
-  config.bricks?.forEach((brick) => {
+  includedBricks?.forEach((brick) => {
     components.add(brick.name);
     if (brick.template !== false) {
       templates.add(brick.name);
@@ -406,10 +402,7 @@ function matchRoute({ route }) {
   return route?.test(window.location.pathname) ?? false;
 }
 
-/**
- * Initializiation.
- */
-export default async function initialize() {
+export default async function initialize(config = {}) {
   setup();
 
   // Eager load first image
@@ -424,7 +417,7 @@ export default async function initialize() {
   );
 
   // Load brick resources
-  const { components, templates } = getBrickResources();
+  const { components, templates } = getBrickResources(config.bricks);
 
   const [loadedComponents] = await Promise.allSettled([
     // bricks in the document
@@ -501,7 +494,7 @@ export default async function initialize() {
  * Simpler brick using aem-inject attributes in the
  * HTML template to select the content to inject in it.
  */
-export class Brick extends HTMLElement {
+window.Brick = class Brick extends HTMLElement {
   // TODO: Template Methods
   // - aem-repeat
   // - aem-append
@@ -596,4 +589,4 @@ export class Brick extends HTMLElement {
       }
     }
   }
-}
+};
