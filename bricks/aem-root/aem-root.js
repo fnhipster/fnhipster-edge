@@ -1,16 +1,29 @@
 export default class Root extends window.Brick {
+  mutationObserver = new MutationObserver((event) => {
+    event.forEach((mutation) => {
+      mutation.addedNodes?.forEach((node) => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+        // Decorate Sections
+        node.querySelectorAll(':scope > div').forEach((section) => {
+          section.classList.add('section');
+        });
+
+        node.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
+        node.querySelectorAll('a:not([data-decorated])')?.forEach(Root.decorateLink);
+      });
+    });
+  });
+
   connectedCallback() {
     const content = this.querySelector('fn-content')?.shadowRoot?.querySelector('main');
 
-    if (!content) return;
-
-    // Decorate Sections
-    content.querySelectorAll(':scope > div').forEach((section) => {
-      section.classList.add('section');
-    });
-
-    // content.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
-    content.querySelectorAll('a:not([data-decorated])')?.forEach(Root.decorateLink);
+    if (content) {
+      this.mutationObserver.observe(content, {
+        childList: true,
+        subtree: true,
+      });
+    }
   }
 
   // Decorate Images

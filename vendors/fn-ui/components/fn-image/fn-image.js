@@ -1,7 +1,7 @@
 const tagName = 'fn-image';
 
 export default class Image extends HTMLElement {
-  // initialized = false;
+  slot = null;
 
   constructor() {
     super();
@@ -46,52 +46,33 @@ export default class Image extends HTMLElement {
     `;
   }
 
-  mutationObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList' && mutation.target === this) {
-        this.initialize();
-      }
-    });
-  });
-
   connectedCallback() {
-    console.log('connectedCallback')
-    this.initialize();
+    console.log('fn-image connectedCallback');
 
-    // observe changes to innerHTML
-    // this.mutationObserver.observe(this, {
-    //   childList: true,
-    //   subtree: true,
-    // });
-  }
+    this.slot = this.shadowRoot.querySelector('slot');
 
-  initialize() {
-    // if (this.initialized) return;
+    this.slot?.addEventListener('slotchange', () => {
+      const wrapper = this.shadowRoot.querySelector('.wrapper');
+      const child = this.querySelector(':scope > img, :scope > picture');
+      const img = this.querySelector('img');
 
-    const wrapper = this.shadowRoot.querySelector('.wrapper');
-    const child = this.querySelector(':scope > img, :scope > picture');
-    const img = this.querySelector('img');
+      if (!img) return;
 
-    
-    if (!img) return;
-    
+      // glow effect
+      const glow = child.cloneNode(true);
+      glow.classList.add('glow');
+      glow.setAttribute('aria-hidden', 'true');
+      wrapper.append(glow);
 
-    // glow effect
-    const glow = child.cloneNode(true);
-    glow.classList.add('glow');
-    glow.setAttribute('aria-hidden', 'true');
-    wrapper.append(glow);
-
-    img.addEventListener('load', () => {
-      wrapper.style.opacity = 1;
+      img.addEventListener('load', () => {
+        wrapper.style.opacity = 1;
+      });
     });
-
-    // this.initialized = true;
   }
 
-  // disconnectedCallback() {
-  //   this.mutationObserver.disconnect();
-  // }
+  disconnectedCallback() {
+    this.slot?.removeEventListener('slotchange');
+  }
 }
 
 if (!customElements.get(tagName)) customElements.define(tagName, Image);
