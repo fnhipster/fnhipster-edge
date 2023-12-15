@@ -55,6 +55,7 @@ export default class Image extends HTMLElement {
   });
 
   connectedCallback() {
+    console.log('connectedCallback')
     this.initialize();
 
     // observe changes to innerHTML
@@ -74,7 +75,6 @@ export default class Image extends HTMLElement {
     
     if (!img) return;
     
-    console.log('Image initialized', img.getAttribute('src'));
 
     // glow effect
     const glow = child.cloneNode(true);
