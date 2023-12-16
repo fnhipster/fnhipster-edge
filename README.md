@@ -16,6 +16,4 @@ npm run lint
 npm run dev
 ```
 
-This will run both `aem up` and `wrangler dev`
-
-Open in http://localhost:8787/
+Open in http://localhost:3000/

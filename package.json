@@ -4,14 +4,12 @@
   "version": "0.1.0",
   "description": "fnhipster.com",
   "scripts": {
-    "postinstall": "(cd cloudflare-worker && npm install)",
-    "dev": "concurrently -n eds,cfw 'npm run dev:eds' 'npm run dev:cfw'",
-    "dev:cfw": "(cd cloudflare-worker && npm start)",
-    "dev:eds": "aem up --no-open",
+    "cfw": "(cd cloudflare-worker && npm start)",
     "deploy:cfw": "(cd cloudflare-worker && npm run deploy)",
     "lint:js": "eslint .",
     "lint": "npm run lint:js",
-    "semantic-release": "semantic-release --debug"
+    "semantic-release": "semantic-release --debug",
+    "postinstall": "cp -r node_modules/@fnhipster/fn-ui vendors/. ; (cd cloudflare-worker && npm install)"
   },
   "repository": {
     "type": "git",
@@ -39,6 +37,7 @@
     "stylelint-config-standard": "30.0.1"
   },
   "dependencies": {
+    "@fnhipster/fn-ui": "latest",
     "wrangler": "^3.17.1"
   }
 }

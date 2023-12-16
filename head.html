@@ -1,12 +1,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<link rel="prefetch" href="/scripts/aem-blocks.js" />
-
 <script type="module">
-    import initialize from '/scripts/aem.js'
+  import initialize from '/scripts/aem.js';
 
-    initialize();
+  initialize({
+    // ESM Modules
+    modules: [
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-app/fn-app.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-content/fn-content.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-header/fn-header.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-image/fn-image.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-link/fn-link.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-logo/fn-logo.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-columns/fn-columns.js',
+      },
+      {
+        route: /.*/,
+        path: '/vendors/fn-ui/components/fn-hero/fn-hero.js',
+      },
+    ],
+
+    // Scripts
+    scripts: [],
+
+    // Styles
+    styles: [],
+  });
 </script>
 
+<link rel="stylesheet" href="/vendors/fn-ui/styles/fn.css" />
 
-<link rel="stylesheet" href="/styles/styles.css" />
+<style>
+  body:not([data-status='loaded']) {
+    display: none;
+  }
+</style>
