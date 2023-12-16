@@ -358,6 +358,14 @@ export default async function initialize(config = {}) {
   // Page is fully loaded
   document.body.dataset.status = 'loaded';
 
+  // Observe fonts loading
+  document.fonts.onloadingdone = (fontFaceSetEvent) => {
+    fontFaceSetEvent.fontfaces.forEach((fontFace) => {
+      const className = `font-loaded--${fontFace.family.replace(/ /g, '-').toLowerCase()}--${fontFace.weight}`;
+      document.body.classList.add(className);
+    });
+  };
+
   // Wait for LCP
   await waitForLCP();
 
