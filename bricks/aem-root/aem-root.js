@@ -1,37 +1,28 @@
 import { Brick } from '../../scripts/aem.js';
 
 export default class Root extends Brick {
-  mutationObserver = new MutationObserver((event) => {
-    event.forEach((mutation) => {
-      mutation.addedNodes?.forEach((node) => {
-        if (node.nodeType !== Node.ELEMENT_NODE) return;
-
-        // Decorate Sections
-        node.querySelectorAll(':scope > div').forEach((section) => {
-          section.classList.add('section');
-        });
-
-        node.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
-        node.querySelectorAll('a:not([data-decorated])')?.forEach(Root.decorateLink);
-      });
-    });
-  });
-
   connectedCallback() {
-    const content = this.querySelector('fn-content')?.shadowRoot?.querySelector('main');
+    const node = this.querySelector('fn-content').shadowRoot;
 
-    if (content) {
-      this.mutationObserver.observe(content, {
-        childList: true,
-        subtree: true,
-      });
-    }
+    // Decorate Sections
+    node.querySelectorAll(':scope > div')?.forEach(Root.decorateSection);
+
+    // Decorate Images
+    node.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
+
+    // Decorate Links
+    node.querySelectorAll('a:not([data-decorated])')?.forEach(Root.decorateLink);
   }
 
-  /** Decorators */
+  static decorateSection(elem) {
+    if (elem.dataset.decorated) return;
+    elem.classList.add('section');
+    elem.dataset.decorated = true;
+  }
 
   static decorateImage(elem) {
     if (elem.dataset.decorated || elem.parentElement.tagName === 'FN-IMAGE') return;
+    console.log('decorating image', elem);
 
     // wrap element with <fn-image>
     const wrapper = document.createElement('fn-image');

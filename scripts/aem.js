@@ -305,35 +305,8 @@ function setup() {
  * Load first image eagerly.
  */
 function loadEagerImages() {
-  // Query for the first <picture> element in the DOM
   const pictureElement = document.querySelector('picture');
-
   pictureElement.querySelector('img').setAttribute('loading', 'eager');
-
-  // if (!pictureElement) return;
-
-  // function getSrcSet() {
-  //   const sourceElement = Array.from(
-  //     pictureElement.querySelectorAll('source'),
-  //   ).find((source) => {
-  //     const mediaQuery = source.getAttribute('media');
-  //     return !mediaQuery || window.matchMedia(mediaQuery).matches;
-  //   });
-
-  //   const source = (sourceElement && sourceElement.getAttribute('srcset'))
-  //     || pictureElement.querySelector('img').getAttribute('src');
-
-  //   return source;
-  // }
-
-  // // Create the link element
-  // const linkElement = document.createElement('link');
-  // linkElement.rel = 'preload';
-  // linkElement.as = 'image';
-  // linkElement.href = getSrcSet();
-
-  // // Append the link element to the head of the document
-  // document.head.appendChild(linkElement);
 }
 
 /**
@@ -538,62 +511,66 @@ export default async function initialize(config = {}) {
 }
 
 /**
- * Simpler brick using aem-inject attributes in the
+ * Simpler brick using aem-append attributes in the
  * HTML template to select the content to inject in it.
  */
 export class Brick extends HTMLElement {
-  // TODO: Template Methods
-  // - aem-repeat
-  // - aem-append
-  // - aem-replace-with
-  static injectFromCSSSelector(scope, elem) {
-    scope.querySelectorAll('*[aem-inject]')?.forEach((selector) => {
-      const attr = selector.getAttribute('aem-inject');
+  static appendFromCSSSelector(scope, elem) {
+    scope.querySelectorAll('*[aem-append]')?.forEach((selector) => {
+      const attr = selector.getAttribute('aem-append');
 
-      if (attr === '') {
-        selector.append(elem.cloneNode(true));
-      } else {
-        elem.querySelectorAll(attr).forEach((item) => {
-          const src = item.cloneNode(true);
+      elem.querySelectorAll(attr).forEach((item) => {
+        const src = item.cloneNode(true);
 
-          if (src) {
-          // set loaded attribute
-            selector.append(src);
-          }
-        });
-      }
+        if (src) {
+          selector.append(src);
+        }
+      });
 
       // remove the attribute so we don't try to inject it again
-      selector.removeAttribute('aem-inject');
+      selector.removeAttribute('aem-append');
     });
   }
 
-  static injectEachLoopFromCSSSelector(scope, elem) {
+  static repeatFromCSSSelector(scope, elem) {
+    scope.querySelectorAll('*[aem-repeat]').forEach((each) => {
+      const parent = each.parentNode;
+
+      elem.querySelectorAll(each.getAttribute('aem-repeat')).forEach((item) => {
+        const clone = each.cloneNode(true);
+
+        each.remove();
+
+        // add item attributes
+        [...clone.attributes].forEach((attr) => {
+          item.setAttribute(attr.name, attr.value);
+        });
+
+        // replace content from our template's CSS selectors
+        clone.replaceWith(item);
+
+        // remove the attribute so we don't try to inject it again
+        item.removeAttribute('aem-repeat');
+
+        parent.append(item);
+      });
+    });
+  }
+
+  static eachFromCSSSelector(scope, elem) {
     scope.querySelectorAll('*[aem-each]').forEach((each) => {
       const parent = each.parentNode;
 
       elem.querySelectorAll(each.getAttribute('aem-each')).forEach((item) => {
         const clone = each.cloneNode(true);
-        const selfInjected = clone.getAttribute('aem-each-inject');
 
         each.remove();
 
         // Inject content from our template's CSS selectors
-        Brick.injectFromCSSSelector(clone, item);
+        Brick.appendFromCSSSelector(clone, item);
 
-        // inject content
-        if (typeof selfInjected !== 'undefined') {
-          if (selfInjected === '') {
-            clone.append(item.cloneNode(true));
-          } else {
-            item.querySelectorAll(selfInjected).forEach((self) => {
-              clone.append(self.cloneNode(true));
-            });
-          }
-
-          // remove the attribute so we don't try to inject it again
-          clone.removeAttribute('aem-each-inject');
-        }
+        // Each content from interations from our template's CSS selectors
+        Brick.eachFromCSSSelector(clone, item);
 
         // remove the attribute so we don't try to inject it again
         clone.removeAttribute('aem-each');
@@ -613,11 +590,14 @@ export class Brick extends HTMLElement {
     if (template) {
       const newContent = template.content.cloneNode(true);
 
-      // Inject content from interations from our template's CSS selectors
-      Brick.injectEachLoopFromCSSSelector(newContent, this);
+      // Repeat content from interations from our template's CSS selectors
+      Brick.repeatFromCSSSelector(newContent, this);
 
-      // Inject content from our template's CSS selectors
-      Brick.injectFromCSSSelector(newContent, this);
+      // Each content from interations from our template's CSS selectors
+      Brick.eachFromCSSSelector(newContent, this);
+
+      // Append content from our template's CSS selectors
+      Brick.appendFromCSSSelector(newContent, this);
 
       // Let derived classes inject more content if needed
       if (typeof this.injectMoreContent === 'function') {

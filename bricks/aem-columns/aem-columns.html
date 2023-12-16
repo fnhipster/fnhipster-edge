@@ -1,9 +1,5 @@
 <template>
   <fn-columns>
-    <div
-      slot="row"
-      aem-each=":scope > div"
-      aem-each-inject=":scope > div"
-    ></div>
+    <div slot="row" aem-repeat=":scope > div"></div>
   </fn-columns>
 </template>
