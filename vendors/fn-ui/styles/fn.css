@@ -10,7 +10,7 @@
     var(--color-bg) 50%;
 
   /* Typography */
-  --typography-body: 'IBM Plex Mono', monospace;
+  --typography-body: 'IBM Plex Mono', Courier New, monospace;
   --typography-heading: "Handjet", Arial Narrow, sans-serif;
   --typography-accent: "Handjet", Arial Narrow, sans-serif;
 
