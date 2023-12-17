@@ -10,7 +10,7 @@
     var(--color-bg) 50%;
 
   /* Typography */
-  --typography-body: 'IBM Plex Mono', Courier New, monospace;
+  --typography-body: 'IBM Plex Mono', Courier, monospace;
   --typography-heading: Arial Narrow, sans-serif;
   --typography-accent: Arial Narrow, sans-serif;
 
