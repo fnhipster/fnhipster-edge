@@ -10,9 +10,9 @@
     var(--color-bg) 50%;
 
   /* Typography */
-  --typography-body: 'Noto Sans', sans-serif;
-  --typography-heading: "Handjet", sans-serif;
-  --typography-accent: "Handjet", sans-serif;
+  --typography-body: 'IBM Plex Mono', monospace;
+  --typography-heading: "Handjet", Arial Narrow, sans-serif;
+  --typography-accent: "Handjet", Arial Narrow, sans-serif;
 
 
   /* Spacing */
