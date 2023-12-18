@@ -11,8 +11,8 @@
 
   /* Typography */
   --typography-body: 'IBM Plex Mono', Courier, monospace;
+  --typography-accent: Handjet, Arial Narrow, sans-serif;
   --typography-heading: Arial Narrow, sans-serif;
-  --typography-accent: Arial Narrow, sans-serif;
 
 
   /* Spacing */

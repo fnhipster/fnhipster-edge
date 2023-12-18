@@ -30,7 +30,7 @@ export default class Header extends HTMLElement {
             display: flex;
             gap: var(--spacing-md);
             font-family: var(--typography-accent);
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             text-transform: uppercase;
           }
 
