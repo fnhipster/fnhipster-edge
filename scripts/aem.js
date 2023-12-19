@@ -88,10 +88,10 @@ async function loadCSS(href) {
     if (!document.querySelector(`head > link[href="${href}"]`)) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.media = 'print';
+      // link.media = 'print';
       link.href = href;
       link.onload = (event) => {
-        event.currentTarget.media = 'all';
+        // event.currentTarget.media = 'all';
         resolve();
       };
       link.onerror = reject;
