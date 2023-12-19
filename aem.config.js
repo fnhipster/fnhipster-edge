@@ -52,10 +52,6 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/styles/fn.css',
     },
-    {
-      route: /.*/,
-      path: '/vendors/fn-ui/styles/fonts.css',
-    },
   ],
 
   // Load Fonts
