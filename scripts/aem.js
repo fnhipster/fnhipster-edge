@@ -345,7 +345,7 @@ export default async function initialize(config = {}) {
     ),
 
     // load fonts
-    Promise.allSettled([...config.fonts]?.filter(matchRoute).map(async ({ name }) => {
+    Promise.allSettled([...config.fonts || []]?.filter(matchRoute).map(async ({ name }) => {
       await document.fonts.load(`1em "${name}"`);
       document.body.classList.add(`font-loaded--${name.replace(/ /g, '-').toLowerCase()}`);
     })),
