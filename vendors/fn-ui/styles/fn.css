@@ -14,7 +14,7 @@
   --font-family: 'Noto Sans Mono', Arial, sans-serif;
   --font-normal: 400;
   --font-bold: 700;
-  --font-md: 1.2rem;
+  --font-md: 1rem;
   --font: var(--font-normal) var(--font-md)/var(--leading-normal) var(--font-family);
 
   /* Typography: Accent */
