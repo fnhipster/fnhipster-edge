@@ -22,7 +22,6 @@ export default class Root extends Brick {
 
   static decorateImage(elem) {
     if (elem.dataset.decorated || elem.parentElement.tagName === 'FN-IMAGE') return;
-    console.log('decorating image', elem);
 
     // wrap element with <fn-image>
     const wrapper = document.createElement('fn-image');

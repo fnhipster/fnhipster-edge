@@ -15,14 +15,11 @@ export default class Hero extends HTMLElement {
           width: calc(100% + var(--margin) * 2);
         }
 
- 
-
-
         .title::slotted(h1) {
           bottom: 0.1em;
           box-sizing: border-box;
           display: inline;
-          font-family: var(--typography-heading) !important;
+          font: var(--font-heading) !important;
           font-size: 7rem !important;
           left: 0;
           margin: 0 !important;
@@ -31,7 +28,6 @@ export default class Hero extends HTMLElement {
           position: absolute;
           text-shadow: 0 0 .8em var(--color-bg);
           text-transform: uppercase !important;
-          line-height: 1 !important;
         }
 
         

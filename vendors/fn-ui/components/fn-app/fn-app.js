@@ -21,11 +21,12 @@ export default class App extends HTMLElement {
             font-size: 10px;
             grid-auto-rows: auto 1fr auto;  
             margin: 0 auto; 
-            max-width: 100rem; 
+            max-width: 80rem; 
             min-height: 100vh; 
             padding: 0 var(--margin); 
             transform-origin: top center; 
-            width: 100%; 
+            width: 100%;
+            color: var(--color-fg);
           }
 
           @keyframes glitch {          
