@@ -47,5 +47,14 @@ window.AEM_CONFIG = {
   scripts: [],
 
   // Styles
-  styles: [],
+  styles: [
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/styles/fn.css',
+    },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/styles/fonts.css',
+    },
+  ],
 };
