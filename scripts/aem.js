@@ -142,6 +142,18 @@ async function loadESModule(src) {
 }
 
 /**
+ * Loads Font
+ * @param {string} name The name of the font
+ * @returns {Promise<void>} Promise that resolves when the font is loaded
+ */
+async function loadFont(name) {
+  return document.fonts.load(`1em "${name}"`).then(() => {
+    const className = `font-${name.replace(/\s/gm, '-')}-loaded`;
+    document.documentElement.classList.add(className).replace(' ', '-');
+  });
+}
+
+/**
  * Builds hero brick and prepends to main in a new section.
  */
 function buildHeroBrick() {
@@ -324,6 +336,11 @@ async function initialize(config = window.AEM_CONFIG || {}) {
     Promise.allSettled([...components].map(loadBrick)),
     Promise.allSettled([...templates].map(loadTemplate)),
 
+    // load fonts
+    Promise.allSettled(
+      config.fonts?.filter(matchRoute).map(({ name }) => loadFont(name)) || [],
+    ),
+
     // eager modules
     Promise.allSettled(
       config.modules
@@ -362,14 +379,6 @@ async function initialize(config = window.AEM_CONFIG || {}) {
 
   // Page is fully loaded
   document.body.dataset.status = 'loaded';
-
-  // Observe fonts loading
-  document.fonts.onloadingdone = (fontFaceSetEvent) => {
-    fontFaceSetEvent.fontfaces.forEach((fontFace) => {
-      const className = `font-loaded--${fontFace.family.replace(/ /g, '-').toLowerCase()}--${fontFace.weight}`;
-      document.body.classList.add(className);
-    });
-  };
 
   // Wait for LCP
   await waitForLCP();

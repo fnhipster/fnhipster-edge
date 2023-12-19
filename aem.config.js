@@ -57,4 +57,20 @@ window.AEM_CONFIG = {
       path: '/vendors/fn-ui/styles/fonts.css',
     },
   ],
+
+  // Load Fonts
+  fonts: [
+    {
+      route: /.*/,
+      name: 'Handjet',
+    },
+    {
+      route: /.*/,
+      name: 'Noto Sans Mono',
+    },
+    {
+      route: /.*/,
+      name: 'Press Start 2P',
+    },
+  ],
 };
