@@ -15,7 +15,6 @@ export default class App extends HTMLElement {
     this.shadowRoot.innerHTML = /* html */ `
       <style>
           :host {
-            animation: glitch 0.5s linear;  
             box-sizing: border-box;
             display: grid; 
             font-size: 10px;
