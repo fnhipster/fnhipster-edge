@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "fnhipster.com",
   "scripts": {
+    "dev": "concurrently 'npm run cfw' 'aem up --no-open'",
     "cfw": "(cd cloudflare-worker && npm start)",
     "deploy:cfw": "(cd cloudflare-worker && npm run deploy)",
     "lint:js": "eslint .",

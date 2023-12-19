@@ -297,7 +297,7 @@ function waitForLCP() {
  * @param {Object} config The config
  * @returns {Promise<void>} Promise that resolves when the page is initialized
  */
-export default async function initialize(config = {}) {
+async function initialize(config = window.AEM_CONFIG || {}) {
   // Load first image eagerly
   loadEagerImages();
 
@@ -399,7 +399,7 @@ export default async function initialize(config = {}) {
  * Simpler brick using aem-append attributes in the
  * HTML template to select the content to inject in it.
  */
-export class Brick extends HTMLElement {
+window.Brick = class Brick extends HTMLElement {
   static appendFromCSSSelector(scope, elem) {
     scope.querySelectorAll('*[aem-append]')?.forEach((selector) => {
       const attr = selector.getAttribute('aem-append');
@@ -501,4 +501,6 @@ export class Brick extends HTMLElement {
       }
     }
   }
-}
+};
+
+initialize();

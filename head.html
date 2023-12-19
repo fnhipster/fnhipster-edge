@@ -1,63 +1,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<script type="module">
-  import initialize from '/scripts/aem.js';
-
-  initialize({
-    // ESM Modules
-    modules: [
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-app/fn-app.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-content/fn-content.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-header/fn-header.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-image/fn-image.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-link/fn-link.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-logo/fn-logo.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-columns/fn-columns.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-hero/fn-hero.js',
-      },
-    ],
-
-    // Scripts
-    scripts: [],
-
-    // Styles
-    styles: [],
-  });
-</script>
-
-<link rel="stylesheet" href="/vendors/fn-ui/styles/fn.css" />
-<link rel="stylesheet" href="/vendors/fn-ui/styles/fonts.css" />
+<script type="module" src="/aem.config.js" data-edge-inline></script>
+<script type="module" src="/scripts/aem.js" data-edge-inline></script>
 
 <style>
   html {
