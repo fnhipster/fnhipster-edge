@@ -344,11 +344,6 @@ export default async function initialize(config = {}) {
         .map(({ path }) => loadCSS(path)) || [],
     ),
 
-    // load fonts
-    Promise.allSettled([...config.fonts || []]?.filter(matchRoute).map(async ({ name }) => {
-      await document.fonts.load(`1em "${name}"`);
-      document.body.classList.add(`font-loaded--${name.replace(/ /g, '-').toLowerCase()}`);
-    })),
   ]);
 
   // Define custom elements
@@ -363,6 +358,14 @@ export default async function initialize(config = {}) {
 
   // Page is fully loaded
   document.body.dataset.status = 'loaded';
+
+  // Observe fonts loading
+  document.fonts.onloadingdone = (fontFaceSetEvent) => {
+    fontFaceSetEvent.fontfaces.forEach((fontFace) => {
+      const className = `font-loaded--${fontFace.family.replace(/ /g, '-').toLowerCase()}--${fontFace.weight}`;
+      document.body.classList.add(className);
+    });
+  };
 
   // Wait for LCP
   await waitForLCP();
