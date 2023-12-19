@@ -17,8 +17,7 @@ export default class Footer extends HTMLElement {
           footer {
             align-items: center;
             display: flex;
-            font-family: var(--typography-accent);
-            font-size: 1.5rem;
+            font: var(--font-accent);
             justify-content: space-between;
             text-transform: uppercase;
             gap: var(--spacing-sm);

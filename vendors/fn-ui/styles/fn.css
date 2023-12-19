@@ -9,31 +9,42 @@
       transparent 50%) center / 5px 5px,
     var(--color-bg) 50%;
 
-  /* Typography */
-  --typography-body: 'IBM Plex Mono', Courier, monospace;
-  --typography-accent: Handjet, Arial Narrow, sans-serif;
-  --typography-heading: Arial Narrow, sans-serif;
+
+  /* Typography: Main */
+  --font-family: 'Noto Sans Mono', Arial, sans-serif;
+  --font-normal: 400;
+  --font-bold: 700;
+  --font-md: 1.2rem;
+  --font: var(--font-normal) var(--font-md)/var(--leading-normal) var(--font-family);
+
+  /* Typography: Accent */
+  --font-accent-family: Handjet, Arial Narrow, sans-serif;
+  --font-accent-normal: 400;
+  --font-accent-md: .9rem;
+  --font-accent-xxl: 5.4rem;
+  --font-accent: var(--font-accent-normal) var(--font-accent-md)/var(--leading-tight) var(--font-accent-family);
+
+
+  /* Typography: Headings */
+  --font-heading-family: "Press Start 2P", Trebuchet MS, sans-serif;
+  --font-heading-normal: 400;
+  --font-heading-md: 2.6rem;
+  --font-heading-lg: 3rem;
+  --font-heading-xl: 4rem;
+  --font-heading: var(--font-heading-normal) var(--font-heading-md)/var(--leading-tighter) var(--font-heading-family);
+
+  /* Typography: Leading */
+  --leading-normal: 1.5;
+  --leading-tight: 1.25;
+  --leading-tighter: 1.1;
+  --leading-loose: 1.75;
 
 
   /* Spacing */
-  --spacing-xs: 0.64rem;
-  --spacing-sm: 1.3rem;
-  --spacing-md: 2.6rem;
-  --spacing-lg: 5.1rem;
-  --spacing-xl: 10.2rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 3rem;
 
   /* Margins */
   --margin: 2rem;
-}
-
-html {
-  color: var(--color-fg);
-  font-size: 62.5%;
-  background-color: var(--color-bg);
-  background: var(--color-bg-pattern);
-}
-
-body {
-  margin: 0;
-  font-size: 10px;
 }

@@ -23,14 +23,13 @@ export default class Header extends HTMLElement {
           }
 
           fn-logo {
-            font-size: 3rem;
+            font-size: 2rem;
           }
 
           nav {
             display: flex;
             gap: var(--spacing-md);
-            font-family: var(--typography-accent);
-            font-size: 1.5rem;
+            font: var(--font-accent);
             text-transform: uppercase;
           }
 

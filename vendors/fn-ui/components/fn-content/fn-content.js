@@ -9,49 +9,34 @@ export default class Content extends HTMLElement {
     this.shadowRoot.innerHTML = /* html */ `
       <style>
         :host {
-          font-family: var(--typography-body);
-          font-size: 1.8rem;
-          line-height: 1.5;
+          font: var(--font);
+          color: var(--color-fg);
         }
 
         strong {
-          font-weight: 600;
+          font-weight: var(--font-bold);
           text-shadow: 0 0 0.2rem currentColor;
         }
 
         h1,
         h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-family: var(--typography-heading);
-          margin: var(--spacing-lg) 0;
+        h3 {
+          font: var(--font-heading);
           text-transform: uppercase;
+          margin: var(--spacing-md) 0;
+          word-spacing: -0.25em;
         }
 
         h1 {
-          font-size: 4rem;
+          font-size: var(--font-heading-xl);
         }
 
         h2 {
-          font-size: 2.9rem;
+          font-size: var(--font-heading-lg);
         }
 
         h3 {
-          font-size: 2.8rem;
-        }
-
-        h4 {
-          font-size: 2.7rem;
-        }
-
-        h5 {
-          font-size: 2.6rem;
-        }
-
-        h6 {
-          font-size: 2.5rem;
+          font-size: var(--font-heading-md);
         }
 
         p {
