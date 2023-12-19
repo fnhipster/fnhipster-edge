@@ -88,12 +88,8 @@ async function loadCSS(href) {
     if (!document.querySelector(`head > link[href="${href}"]`)) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      // link.media = 'print';
       link.href = href;
-      link.onload = (event) => {
-        // event.currentTarget.media = 'all';
-        resolve();
-      };
+      link.onload = resolve;
       link.onerror = reject;
       document.head.append(link);
     } else {
@@ -336,11 +332,6 @@ async function initialize(config = window.AEM_CONFIG || {}) {
     Promise.allSettled([...components].map(loadBrick)),
     Promise.allSettled([...templates].map(loadTemplate)),
 
-    // load fonts
-    Promise.allSettled(
-      config.fonts?.filter(matchRoute).map(({ name }) => loadFont(name)) || [],
-    ),
-
     // eager modules
     Promise.allSettled(
       config.modules
@@ -363,6 +354,14 @@ async function initialize(config = window.AEM_CONFIG || {}) {
         ?.filter(matchRoute)
         .filter(({ lazy }) => !lazy)
         .map(({ path }) => loadCSS(path)) || [],
+    ),
+
+    // load fonts
+    Promise.allSettled(
+      config.fonts
+        ?.filter(matchRoute)
+        .filter(({ lazy }) => !lazy)
+        .map(({ name }) => loadFont(name)) || [],
     ),
 
   ]);
