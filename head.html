@@ -9,15 +9,12 @@
     background: var(--color-bg-pattern);
   }
 
-  body {
+  body:not([data-status='loaded']) {
     display: none;
   }
 
-  body.appear {
-    display: block;
-  }
-
-  [data-status='loading'] {
-    display: none;
+  img {
+    max-width: 100%;
+    height: auto;
   }
 </style>
