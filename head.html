@@ -9,7 +9,15 @@
     background: var(--color-bg-pattern);
   }
 
-  body:not([data-status='loaded']) {
+  body {
+    display: none;
+  }
+
+  body.reveal {
+    display: block;
+  }
+
+  [data-status='loading'] {
     display: none;
   }
 </style>
