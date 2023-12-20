@@ -202,11 +202,10 @@ function loadEagerImages() {
 function transformToBrick(block) {
   const { classList } = block;
   const blockName = classList[0];
-  const blockClasses = [...classList].slice(1);
 
   const tagName = `aem-${blockName || block.tagName.toLowerCase()}`;
   const brick = document.createElement(tagName);
-  brick.classList.add(...blockClasses);
+  brick.classList.add(...classList);
 
   brick.innerHTML = block.innerHTML;
 
@@ -216,16 +215,13 @@ function transformToBrick(block) {
 }
 
 /**
- * Get brick resources.
- * @returns {Object} The brick resources
+ * Load Bricks.
+ * @param {string} selector The selector to load
  */
-function getBrickResources() {
-  const components = new Set(['aem-root']);
-  const templates = new Set(['aem-root']);
-
+function loadBricks(selector) {
   // Load Bricks from DOM
   document.body
-    .querySelectorAll('div[class]:not(.fragment)')
+    .querySelectorAll(selector)
     .forEach((block) => {
       const { status } = block.dataset;
 
@@ -234,19 +230,9 @@ function getBrickResources() {
       block.dataset.status = 'loading';
 
       const brick = transformToBrick(block);
-      const tagName = brick.tagName.toLowerCase();
-
-      components.add(tagName);
-
-      // only add templates for non-metadata bricks
-      if (!tagName.endsWith('-metadata')) {
-        templates.add(tagName);
-      }
 
       brick.dataset.status = 'loaded';
     });
-
-  return { components, templates };
 }
 
 /**
@@ -310,6 +296,13 @@ function waitForLCP() {
  * @returns {Promise<void>} Promise that resolves when the page is initialized
  */
 async function initialize(config = window.AEM_CONFIG || {}) {
+  // TODO: move to its own function
+  document.body
+    .querySelectorAll('div[class]:not(.fragment)')
+    .forEach((block) => {
+      block.dataset.status = 'loading';
+    });
+
   // Load first image eagerly
   loadEagerImages();
 
@@ -325,12 +318,28 @@ async function initialize(config = window.AEM_CONFIG || {}) {
   );
 
   // Load brick resources
-  const { components, templates } = getBrickResources();
+  // const { components, templates } = getBrickResources();
+
+  config.bricks?.forEach(({ selector }) => {
+    if (selector) {
+      loadBricks(selector);
+    }
+  });
+
+  const components = config.bricks
+    ?.filter(matchRoute)
+    .filter((x) => !x.lazy)
+    .map(({ name }) => name);
+
+  const templates = config.bricks
+    ?.filter(matchRoute)
+    .filter((x) => x.template && !x.lazy)
+    .map(({ name }) => name);
 
   const [loadedComponents] = await Promise.allSettled([
     // bricks in the document
-    Promise.allSettled([...components].map(loadBrick)),
-    Promise.allSettled([...templates].map(loadTemplate)),
+    Promise.allSettled(['aem-root', ...components].map(loadBrick)),
+    Promise.allSettled(['aem-root', ...templates].map(loadTemplate)),
 
     // eager modules
     Promise.allSettled(
@@ -377,34 +386,35 @@ async function initialize(config = window.AEM_CONFIG || {}) {
   });
 
   // Page is fully loaded
-  document.body.dataset.status = 'loaded';
+  // document.body.dataset.status = 'loaded';
+  document.body.classList.add('appear');
 
-  // Wait for LCP
-  await waitForLCP();
+  // // Wait for LCP
+  // await waitForLCP();
 
-  // Load lazy scripts
-  config.modules
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => lazy)
-    .forEach(({ path }) => {
-      loadESModule(`${path}`);
-    });
+  // // Load lazy scripts
+  // config.modules
+  //   ?.filter(matchRoute)
+  //   .filter(({ lazy }) => lazy)
+  //   .forEach(({ path }) => {
+  //     loadESModule(`${path}`);
+  //   });
 
-  // Load lazy scripts
-  config.scripts
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => lazy)
-    .forEach(({ path }) => {
-      loadScript(`${path}`);
-    });
+  // // Load lazy scripts
+  // config.scripts
+  //   ?.filter(matchRoute)
+  //   .filter(({ lazy }) => lazy)
+  //   .forEach(({ path }) => {
+  //     loadScript(`${path}`);
+  //   });
 
-  // Load lazy styles
-  config.styles
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => lazy)
-    .forEach(({ path }) => {
-      loadCSS(`${path}`);
-    });
+  // // Load lazy styles
+  // config.styles
+  //   ?.filter(matchRoute)
+  //   .filter(({ lazy }) => lazy)
+  //   .forEach(({ path }) => {
+  //     loadCSS(`${path}`);
+  //   });
 }
 
 /**
