@@ -386,8 +386,7 @@ async function initialize(config = window.AEM_CONFIG || {}) {
   });
 
   // Page is fully loaded
-  // document.body.dataset.status = 'loaded';
-  document.body.classList.add('appear');
+  document.body.dataset.status = 'loaded';
 
   // // Wait for LCP
   // await waitForLCP();
