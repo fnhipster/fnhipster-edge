@@ -2,15 +2,41 @@ window.AEM_CONFIG = {
   // Bricks
   bricks: [
     {
-      route: /.*/, name: 'aem-hero', selector: '.hero', template: true,
+      route: /.*/,
+      name: 'aem-root',
+      template: true,
+    },
+    {
+      route: /.*/,
+      name: 'aem-hero',
+      selector: '.hero',
+      template: true,
+    },
+    {
+      route: /.*/,
+      name: 'aem-columns',
+      selector: '.columns',
+      template: true,
+    },
+    {
+      route: /.*/,
+      name: 'aem-page-metadata',
+      selector: '.page-metadata',
+      template: false,
+    },
+    {
+      route: /.*/,
+      name: 'aem-section-metadata',
+      selector: '.page-metadata',
+      template: false,
     },
   ],
   // ESM Modules
   modules: [
-    // {
-    //   route: /.*/,
-    //   path: '/vendors/fn-ui/components/fn-app/fn-app.js',
-    // },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/components/fn-app/fn-app.js',
+    },
     // {
     //   route: /.*/,
     //   path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
@@ -22,6 +48,7 @@ window.AEM_CONFIG = {
     // {
     //   route: /.*/,
     //   path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
+    //   lazy: true,
     // },
     // {
     //   route: /.*/,
@@ -54,10 +81,10 @@ window.AEM_CONFIG = {
 
   // Styles
   styles: [
-    // {
-    //   route: /.*/,
-    //   path: '/vendors/fn-ui/styles/fn.css',
-    // },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/styles/fn.css',
+    },
     // {
     //   route: /.*/,
     //   path: '/vendors/fn-ui/styles/fonts.css',
