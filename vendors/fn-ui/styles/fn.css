@@ -1,11 +1,9 @@
 :root {
   /* Colors */
-  --color-fg-rgb: 255, 176, 0;
-  --color-bg-rgb: 17, 17, 17;
-  --color-fg: rgb(var(--color-fg-rgb));
-  --color-bg: rgb(var(--color-bg-rgb));
+  --color-fg: rgb(255, 176, 0);
+  --color-bg: rgb(17, 17, 17);
   --color-bg-pattern: linear-gradient(0deg,
-      rgba(var(--color-fg-rgb), 0.02) 50%,
+      color-mix(in srgb, var(--color-bg), var(--color-fg) 2.5%) 50%,
       transparent 50%) center / 5px 5px,
     var(--color-bg) 50%;
 
