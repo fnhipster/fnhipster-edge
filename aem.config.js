@@ -37,10 +37,10 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-app/fn-app.js',
     },
-    {
-      route: /.*/,
-      path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
-    },
+    // {
+    //   route: /.*/,
+    //   path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
+    // },
     {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-content/fn-content.js',
