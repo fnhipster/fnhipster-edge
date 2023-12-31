@@ -1,11 +1,9 @@
 :root {
   /* Colors */
-  --color-fg-rgb: 255, 176, 0;
-  --color-bg-rgb: 17, 17, 17;
-  --color-fg: rgb(var(--color-fg-rgb));
-  --color-bg: rgb(var(--color-bg-rgb));
+  --color-fg: rgb(255, 176, 0);
+  --color-bg: rgb(17, 17, 17);
   --color-bg-pattern: linear-gradient(0deg,
-      rgba(var(--color-fg-rgb), 0.02) 50%,
+      color-mix(in srgb, var(--color-bg), var(--color-fg) 2.5%) 50%,
       transparent 50%) center / 5px 5px,
     var(--color-bg) 50%;
 
@@ -15,14 +13,16 @@
   --font-normal: 400;
   --font-bold: 700;
   --font-md: 1rem;
-  --font: var(--font-normal) var(--font-md)/var(--leading-normal) var(--font-family);
+  --font-leading: 1.6;
+  --font: var(--font-normal) var(--font-md)/var(--font-leading) var(--font-family);
 
   /* Typography: Accent */
   --font-accent-family: Handjet, Arial Narrow, sans-serif;
   --font-accent-normal: 400;
   --font-accent-md: .9rem;
+  --font-accent-leading: 1.5;
   --font-accent-xxl: 5.4rem;
-  --font-accent: var(--font-accent-normal) var(--font-accent-md)/var(--leading-tight) var(--font-accent-family);
+  --font-accent: var(--font-accent-normal) var(--font-accent-md)/var(--font-accent-leading) var(--font-accent-family);
 
 
   /* Typography: Headings */
@@ -31,14 +31,8 @@
   --font-heading-md: 2.6rem;
   --font-heading-lg: 3rem;
   --font-heading-xl: 4rem;
-  --font-heading: var(--font-heading-normal) var(--font-heading-md)/var(--leading-tighter) var(--font-heading-family);
-
-  /* Typography: Leading */
-  --leading-normal: 1.5;
-  --leading-tight: 1.25;
-  --leading-tighter: 1.1;
-  --leading-loose: 1.75;
-
+  --font-heading-leading: 0.7;
+  --font-heading: var(--font-heading-normal) var(--font-heading-md)/var(--font-heading-leading) var(--font-heading-family);
 
   /* Spacing */
   --spacing-sm: 1rem;

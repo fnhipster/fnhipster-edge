@@ -1,5 +1,86 @@
 const tagName = 'fn-link';
 
+const template = document.createElement('template');
+
+template.innerHTML = /* html */ `
+  <style>
+
+    .link {
+      color: var(--color-fg, currentColor);
+      display: inline-block;
+      position: relative;
+      text-decoration: var(--decoration, underline);
+      transition: transform 0.2s linear;          
+    }
+
+    .link::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      outline: 0.2rem solid var(--color-fg);
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+      opacity: 0;
+      transition: opacity 200ms ease-out;
+      z-index: -1;
+    }
+
+    .link::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-color: var(--color-fg);
+      opacity: 0;
+      transition: opacity 0.2s linear;
+      z-index: -1;
+      outline: 0.2rem solid var(--color-fg);
+    }
+
+    .link:focus {
+      outline: none;
+    }
+
+    .link:not([aria-disabled]) {
+      cursor: pointer;
+    }
+
+    .link:hover:not([aria-disabled])::before {
+      opacity: 1;
+    }
+
+    .link.pressed:not([aria-disabled]),
+    .link:not([aria-disabled]):active {
+      transform: translateY(2px) scale(0.9);
+    }
+
+    .link:not([aria-disabled]):focus,
+    .link.pressed:not([aria-disabled]),
+    .link:not([aria-disabled]):active {
+      color: var(--color-bg);
+    }
+
+    .link:not([aria-disabled]):focus::after,
+    .link.pressed:not([aria-disabled]),
+    .link:not([aria-disabled]):active::after {
+      opacity: 1;
+    }
+
+    .link[aria-disabled] {
+      opacity: 0.4;
+    }
+
+  </style>
+
+  <a class="link">
+    <slot></slot>
+  </a>
+`;
+
 export default class Link extends HTMLElement {
   linkElement = null;
 
@@ -14,86 +95,9 @@ export default class Link extends HTMLElement {
   constructor() {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: 'open' });
 
-    this.shadowRoot.innerHTML = /* html */ `
-      <style>
-   
-        .link {
-          color: var(--color-fg, currentColor);
-          display: inline-block;
-          position: relative;
-          text-decoration: var(--decoration, underline);
-          transition: transform 0.2s linear;          
-        }
-
-        .link::before {
-          content: '';
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          outline: 0.2rem solid var(--color-fg);
-          top: 0;
-          left: 0;
-          box-sizing: border-box;
-          opacity: 0;
-          transition: opacity 200ms ease-out;
-          z-index: -1;
-        }
-
-        .link::after {
-          content: '';
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          background-color: var(--color-fg);
-          opacity: 0;
-          transition: opacity 0.2s linear;
-          z-index: -1;
-          outline: 0.2rem solid var(--color-fg);
-        }
-
-        .link:focus {
-          outline: none;
-        }
-
-        .link:not([aria-disabled]) {
-          cursor: pointer;
-        }
-
-        .link:hover:not([aria-disabled])::before {
-          opacity: 1;
-        }
-
-        .link.pressed:not([aria-disabled]),
-        .link:not([aria-disabled]):active {
-          transform: translateY(2px) scale(0.9);
-        }
-
-        .link:not([aria-disabled]):focus,
-        .link.pressed:not([aria-disabled]),
-        .link:not([aria-disabled]):active {
-          color: var(--color-bg);
-        }
-
-        .link:not([aria-disabled]):focus::after,
-        .link.pressed:not([aria-disabled]),
-        .link:not([aria-disabled]):active::after {
-          opacity: 1;
-        }
-
-        .link[aria-disabled] {
-          opacity: 0.4;
-        }
-
-      </style>
-      
-      <a class="link">
-        <slot></slot>
-      </a>
-    `;
+    shadowRoot.appendChild(template.content.cloneNode(true));
 
     this.linkElement = this.shadowRoot.querySelector('.link');
   }

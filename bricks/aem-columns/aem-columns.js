@@ -1,3 +1,1 @@
-import { Brick } from '../../scripts/aem.js';
-
-export default class Columns extends Brick { }
+export default class Columns extends window.Brick { }
