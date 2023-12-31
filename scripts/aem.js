@@ -106,19 +106,19 @@ async function loadCSS(href) {
  * @param {string} src URL to the JS file
  * @returns {Promise<void>} Promise that resolves when the JS file is loaded
  */
-async function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (!document.head.querySelector(`script[src="${src}"]`)) {
-      const script = document.createElement('script');
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.append(script);
-    } else {
-      resolve();
-    }
-  });
-}
+// async function loadScript(src) {
+//   return new Promise((resolve, reject) => {
+//     if (!document.head.querySelector(`script[src="${src}"]`)) {
+//       const script = document.createElement('script');
+//       script.src = src;
+//       script.onload = resolve;
+//       script.onerror = reject;
+//       document.head.append(script);
+//     } else {
+//       resolve();
+//     }
+//   });
+// }
 
 /**
  * Loads a ES Module file.
@@ -145,12 +145,12 @@ async function loadESModule(src) {
  * @param {string} name The name of the font
  * @returns {Promise<void>} Promise that resolves when the font is loaded
  */
-async function loadFont(name) {
-  return document.fonts.load(`1em "${name}"`).then(() => {
-    const className = `font-${name.replace(/\s/gm, '-')}-loaded`;
-    vBODY.classList.add(className).replace(' ', '-');
-  });
-}
+// async function loadFont(name) {
+//   return document.fonts.load(`1em "${name}"`).then(() => {
+//     const className = `font-${name.replace(/\s/gm, '-')}-loaded`;
+//     vBODY.classList.add(className).replace(' ', '-');
+//   });
+// }
 
 /**
  * Builds hero brick and prepends to main in a new section.
@@ -290,16 +290,6 @@ function matchRoute({ route }) {
 //     observer.observe({ type: 'largest-contentful-paint', buffered: true });
 //   });
 // }
-
-/**
- * Yield to main thread.
- * @returns {Promise<void>} Promise that resolves when the main thread is available
- */
-function yieldToMain() {
-  return new Promise((resolve) => {
-    setTimeout(resolve, 0);
-  });
-}
 
 /**
  * Initialize.
