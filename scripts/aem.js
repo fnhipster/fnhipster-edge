@@ -10,6 +10,9 @@
  * governing permissions and limitations under the License.
  */
 
+const vBODY = new DocumentFragment();
+vBODY.append(...document.body.childNodes);
+
 /**
  * Load HTML Template.
  * @param {string} name The name of the template
@@ -21,7 +24,7 @@ async function loadTemplate(name) {
   return new Promise((resolve, reject) => {
     const id = href.split('/').pop().split('.').shift();
 
-    const brick = document.querySelector(`template[id="${id}"]`);
+    const brick = vBODY.querySelector(`template[id="${id}"]`);
 
     if (brick) {
       resolve();
@@ -41,7 +44,7 @@ async function loadTemplate(name) {
 
             if (html) {
               html.id = id;
-              document.body.append(html);
+              vBODY.append(html);
             }
           })
           .finally(resolve);
@@ -85,7 +88,7 @@ async function loadBrick(name) {
  */
 async function loadCSS(href) {
   return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > link[href="${href}"]`)) {
+    if (!document.head.querySelector(`link[href="${href}"]`)) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = href;
@@ -105,7 +108,7 @@ async function loadCSS(href) {
  */
 async function loadScript(src) {
   return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > script[src="${src}"]`)) {
+    if (!document.head.querySelector(`script[src="${src}"]`)) {
       const script = document.createElement('script');
       script.src = src;
       script.onload = resolve;
@@ -124,7 +127,7 @@ async function loadScript(src) {
  */
 async function loadESModule(src) {
   return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > script[src="${src}"]`)) {
+    if (!document.head.querySelector(`script[src="${src}"]`)) {
       const script = document.createElement('script');
       script.type = 'module';
       script.src = src;
@@ -145,7 +148,7 @@ async function loadESModule(src) {
 async function loadFont(name) {
   return document.fonts.load(`1em "${name}"`).then(() => {
     const className = `font-${name.replace(/\s/gm, '-')}-loaded`;
-    document.documentElement.classList.add(className).replace(' ', '-');
+    vBODY.classList.add(className).replace(' ', '-');
   });
 }
 
@@ -153,7 +156,7 @@ async function loadFont(name) {
  * Builds hero brick and prepends to main in a new section.
  */
 function buildHeroBrick() {
-  const main = document.querySelector('main');
+  const main = vBODY.querySelector('main');
   const h1 = main.querySelector('main h1');
   const picture = main.querySelector('main p > picture');
 
@@ -180,17 +183,17 @@ function buildHeroBrick() {
  */
 function decorateRoot() {
   const root = document.createElement('aem-root');
-  root.append(document.querySelector('header'));
-  root.append(document.querySelector('main'));
-  root.append(document.querySelector('footer'));
-  document.body.prepend(root);
+  root.append(vBODY.querySelector('header'));
+  root.append(vBODY.querySelector('main'));
+  root.append(vBODY.querySelector('footer'));
+  vBODY.prepend(root);
 }
 
 /**
  * Load first image eagerly.
  */
 function loadEagerImages() {
-  const pictureElement = document.querySelector('picture');
+  const pictureElement = vBODY.querySelector('picture');
   pictureElement.querySelector('img').setAttribute('loading', 'eager');
 }
 
@@ -206,10 +209,8 @@ function transformToBrick(block) {
   const tagName = `aem-${blockName || block.tagName.toLowerCase()}`;
   const brick = document.createElement(tagName);
   brick.classList.add(...classList);
-
   brick.innerHTML = block.innerHTML;
-
-  block.parentNode.replaceChild(brick, block);
+  block.replaceWith(brick);
 
   return brick;
 }
@@ -220,7 +221,7 @@ function transformToBrick(block) {
  */
 function loadBricks(selector) {
   // Load Bricks from DOM
-  document.body
+  vBODY
     .querySelectorAll(selector)
     .forEach((block) => {
       const { status } = block.dataset;
@@ -240,26 +241,26 @@ function loadBricks(selector) {
  * @param {HTMLElement} element The fragment element
  * @returns {Promise<void>} Promise that resolves when the fragment is loaded
  */
-async function preloadFragment(element) {
-  const item = element.querySelector('div > div');
-  const path = item.innerText;
+// async function preloadFragment(element) {
+//   const item = element.querySelector('div > div');
+//   const path = item.innerText;
 
-  const url = new URL(`${path}.plain.html`, window.location.origin);
+//   const url = new URL(`${path}.plain.html`, window.location.origin);
 
-  try {
-    const res = await fetch(url);
+//   try {
+//     const res = await fetch(url);
 
-    if (!res.ok) {
-      // eslint-disable-next-line no-console
-      console.warn(`failed to preload fragment ${path}`);
-    }
+//     if (!res.ok) {
+//       // eslint-disable-next-line no-console
+//       console.warn(`failed to preload fragment ${path}`);
+//     }
 
-    item.innerHTML = await res.text();
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Loading fragment ${path} failed:`, error);
-  }
-}
+//     item.innerHTML = await res.text();
+//   } catch (error) {
+//     // eslint-disable-next-line no-console
+//     console.error(`Loading fragment ${path} failed:`, error);
+//   }
+// }
 
 /**
  * Match route.
@@ -291,40 +292,26 @@ function matchRoute({ route }) {
 // }
 
 /**
+ * Yield to main thread.
+ * @returns {Promise<void>} Promise that resolves when the main thread is available
+ */
+function yieldToMain() {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
+}
+
+/**
  * Initialize.
  * @param {Object} config The config
  * @returns {Promise<void>} Promise that resolves when the page is initialized
  */
 async function initialize(config = window.AEM_CONFIG || {}) {
-  // TODO: move to its own function
-  document.body
-    .querySelectorAll('div[class]:not(.fragment)')
-    .forEach((block) => {
-      block.dataset.status = 'loading';
-    });
-
-  // Load first image eagerly
-  loadEagerImages();
-
-  // Build hero brick
-  buildHeroBrick();
-
-  // Decorate Root
-  decorateRoot();
-
-  // Preload fragments
-  await Promise.allSettled(
-    [...document.querySelectorAll('.fragment')].map(preloadFragment),
-  );
-
   // Load brick resources
-  // const { components, templates } = getBrickResources();
-
-  config.bricks?.forEach(({ selector }) => {
-    if (selector) {
-      loadBricks(selector);
-    }
-  });
+  const bricks = config.bricks
+    ?.filter(matchRoute)
+    .filter((x) => !x.lazy)
+    .map(({ selector }) => selector);
 
   const components = config.bricks
     ?.filter(matchRoute)
@@ -336,57 +323,61 @@ async function initialize(config = window.AEM_CONFIG || {}) {
     .filter((x) => x.template && !x.lazy)
     .map(({ name }) => name);
 
+  const modules = config.modules
+    ?.filter(matchRoute)
+    .filter(({ lazy }) => !lazy)
+    .map(({ path }) => path);
+
+  const styles = config.styles
+    ?.filter(matchRoute)
+    .filter(({ lazy }) => !lazy)
+    .map(({ path }) => path);
+
+  // Load first image eagerly
+  loadEagerImages();
+
+  // Build hero brick
+  buildHeroBrick();
+
+  // Decorate Root
+  decorateRoot();
+
+  // Load bricks
+  setTimeout(() => bricks.forEach(loadBricks), 0);
+
   const [loadedComponents] = await Promise.allSettled([
-    // bricks in the document
-    Promise.allSettled(['aem-root', ...components].map(loadBrick)),
-    Promise.allSettled(['aem-root', ...templates].map(loadTemplate)),
+    // bricks
+    Promise.allSettled([...components].map(loadBrick)),
+    Promise.allSettled([...templates].map(loadTemplate)),
 
-    // eager modules
-    Promise.allSettled(
-      config.modules
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ path }) => loadESModule(path)) || [],
-    ),
+    // modules
+    Promise.allSettled([...modules].map(loadESModule)),
 
-    // eager scripts
-    Promise.allSettled(
-      config.modules
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ path }) => loadScript(path)) || [],
-    ),
+    // TODO: scripts
 
-    // eager styles
-    Promise.allSettled(
-      config.styles
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ path }) => loadCSS(path)) || [],
-    ),
+    // styles
+    Promise.allSettled([...styles].map(loadCSS)),
 
-    // load fonts
-    Promise.allSettled(
-      config.fonts
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ name }) => loadFont(name)) || [],
-    ),
-
+    // TODO: load fonts
   ]);
 
   // Define custom elements
-  loadedComponents.value.forEach(async ({ status, value }) => {
-    if (status === 'fulfilled') {
-      // If not already defined, define it.
-      if (!customElements.get(value.name)) {
-        customElements.define(value.name, value.className);
+  setTimeout(() => {
+    loadedComponents.value.forEach(({ status, value }) => {
+      if (status === 'fulfilled') {
+        // If not already defined, define it.
+        if (!customElements.get(value.name)) {
+          customElements.define(value.name, value.className);
+        }
       }
-    }
-  });
+    });
+  }, 0);
 
-  // Page is fully loaded
-  document.body.dataset.status = 'loaded';
+  // update body
+  const body = document.createElement('body');
+  body.append(...vBODY.childNodes);
+  body.dataset.status = 'loaded';
+  document.body.replaceWith(body);
 
   // // Wait for LCP
   // await waitForLCP();
@@ -513,15 +504,15 @@ window.Brick = class Brick extends HTMLElement {
       // Append content to shadow root or directly
       if (template.getAttribute('shadowroot') === 'true') {
         this.attachShadow({ mode: 'open' });
-        this.shadowRoot.append(newContent);
+        this.shadowRoot.appendChild(newContent);
         this.root = this.shadowRoot;
       } else {
         this.innerHTML = '';
-        this.append(newContent);
+        this.appendChild(newContent);
         this.root = this;
       }
     }
   }
 };
 
-initialize();
+setTimeout(initialize, 0);
