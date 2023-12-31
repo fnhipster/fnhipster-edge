@@ -37,18 +37,9 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-app/fn-app.js',
     },
-    // {
-    //   route: /.*/,
-    //   path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
-    // },
     {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-content/fn-content.js',
-    },
-    {
-      route: /.*/,
-      path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
-      lazy: true,
     },
     {
       route: /.*/,
@@ -74,10 +65,17 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-hero/fn-hero.js',
     },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
+      lazy: true,
+    },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
+      lazy: true,
+    },
   ],
-
-  // Scripts
-  // scripts: [],
 
   // Styles
   styles: [
@@ -85,26 +83,10 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/styles/fn.css',
     },
-    // {
-    //   route: /.*/,
-    //   path: '/vendors/fn-ui/styles/fonts.css',
-    //   lazy: true,
-    // },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/styles/fonts.css',
+      lazy: true,
+    },
   ],
-
-  // Load Fonts
-  // fonts: [
-  //   {
-  //     route: /.*/,
-  //     name: 'Handjet',
-  //   },
-  //   {
-  //     route: /.*/,
-  //     name: 'Noto Sans Mono',
-  //   },
-  //   {
-  //     route: /.*/,
-  //     name: 'Press Start 2P',
-  //   },
-  // ],
 };

@@ -10,6 +10,8 @@
  * governing permissions and limitations under the License.
  */
 
+const CONFIG = window.AEM_CONFIG || {};
+
 const vBODY = new DocumentFragment();
 vBODY.append(...document.body.childNodes);
 
@@ -102,25 +104,6 @@ async function loadCSS(href) {
 }
 
 /**
- * Loads a non module JS file.
- * @param {string} src URL to the JS file
- * @returns {Promise<void>} Promise that resolves when the JS file is loaded
- */
-// async function loadScript(src) {
-//   return new Promise((resolve, reject) => {
-//     if (!document.head.querySelector(`script[src="${src}"]`)) {
-//       const script = document.createElement('script');
-//       script.src = src;
-//       script.onload = resolve;
-//       script.onerror = reject;
-//       document.head.append(script);
-//     } else {
-//       resolve();
-//     }
-//   });
-// }
-
-/**
  * Loads a ES Module file.
  * @param {string} src URL to the JS file
  * @returns {Promise<void>} Promise that resolves when the JS file is loaded
@@ -141,16 +124,13 @@ async function loadESModule(src) {
 }
 
 /**
- * Loads Font
- * @param {string} name The name of the font
- * @returns {Promise<void>} Promise that resolves when the font is loaded
+ * Match route.
+ * @param {Object} param0 The route
+ * @returns {boolean} Whether the route matches the current path
  */
-// async function loadFont(name) {
-//   return document.fonts.load(`1em "${name}"`).then(() => {
-//     const className = `font-${name.replace(/\s/gm, '-')}-loaded`;
-//     vBODY.classList.add(className).replace(' ', '-');
-//   });
-// }
+function matchRoute({ route }) {
+  return route?.test(window.location.pathname) ?? false;
+}
 
 /**
  * Builds hero brick and prepends to main in a new section.
@@ -217,23 +197,90 @@ function transformToBrick(block) {
 
 /**
  * Load Bricks.
- * @param {string} selector The selector to load
+ * @param {boolean} lazy Whether to load lazy bricks
+ * @returns {Promise<void>
  */
-function loadBricks(selector) {
-  // Load Bricks from DOM
-  vBODY
-    .querySelectorAll(selector)
-    .forEach((block) => {
-      const { status } = block.dataset;
+function loadBricks(lazy = false) {
+  return async () => {
+    const components = [];
+    const templates = [];
 
-      if (status === 'loading' || status === 'loaded') return;
+    CONFIG.bricks
+      ?.filter(matchRoute)
+      .forEach(({
+        name,
+        selector,
+        template,
+        lazy: _lazy = false,
+      }) => {
+        if (lazy !== _lazy) return;
 
-      block.dataset.status = 'loading';
+        components.push(name);
 
-      const brick = transformToBrick(block);
+        if (template) templates.push(name);
 
-      brick.dataset.status = 'loaded';
+        // Load Bricks from DOM
+        vBODY
+          .querySelectorAll(selector)
+          .forEach((block) => {
+            const { status } = block.dataset;
+
+            if (status === 'loading' || status === 'loaded') return;
+
+            block.dataset.status = 'loading';
+
+            const brick = transformToBrick(block);
+
+            brick.dataset.status = 'loaded';
+          });
+      });
+
+    const [loaded] = await Promise.allSettled([
+      Promise.allSettled([...components].map(loadBrick)),
+      Promise.allSettled([...templates].map(loadTemplate)),
+    ]);
+
+    loaded.value.forEach(({ status, value }) => {
+      if (status === 'fulfilled') {
+        // If not already defined, define it.
+        if (!customElements.get(value.name)) {
+          customElements.define(value.name, value.className);
+        }
+      }
     });
+  };
+}
+
+/**
+ * Load ES Modules.
+ * @param {boolean} lazy Whether to load lazy modules
+ * @returns {Promise<void>
+ */
+function loadESModules(lazy = false) {
+  return async () => {
+    const modules = CONFIG.modules
+      ?.filter(matchRoute)
+      .filter(({ lazy: _lazy = false }) => lazy === _lazy)
+      .map(({ path }) => path);
+
+    return Promise.allSettled([...modules].map(loadESModule));
+  };
+}
+
+/**
+ * Load Styles.
+ * @param {boolean} lazy Whether to load lazy styles
+ * @returns {Promise<void>
+ */
+function loadStyles(lazy = false) {
+  return async () => {
+    const styles = CONFIG.styles
+      ?.filter(matchRoute)
+      .filter(({ lazy: _lazy = false }) => lazy === _lazy)
+      .map(({ path }) => path);
+
+    return Promise.allSettled([...styles].map(loadCSS));
+  };
 }
 
 /**
@@ -263,66 +310,31 @@ function loadBricks(selector) {
 // }
 
 /**
- * Match route.
- * @param {Object} param0 The route
- * @returns {boolean} Whether the route matches the current path
- */
-function matchRoute({ route }) {
-  return route?.test(window.location.pathname) ?? false;
-}
-
-/**
  * Wait for LCP.
  * @returns {Promise<PerformanceEntry>} Promise that resolves when the LCP is loaded
  */
-// function waitForLCP() {
-//   return new Promise((resolve) => {
-//     const observer = new PerformanceObserver((list) => {
-//       // eslint-disable-next-line no-restricted-syntax
-//       for (const entry of list.getEntries()) {
-//         if (entry.entryType === 'largest-contentful-paint') {
-//           resolve(entry);
-//           observer.disconnect();
-//         }
-//       }
-//     });
+function waitForLCP() {
+  return new Promise((resolve) => {
+    const observer = new PerformanceObserver((list) => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const entry of list.getEntries()) {
+        if (entry.entryType === 'largest-contentful-paint') {
+          resolve(entry);
+          observer.disconnect();
+        }
+      }
+    });
 
-//     observer.observe({ type: 'largest-contentful-paint', buffered: true });
-//   });
-// }
+    observer.observe({ type: 'largest-contentful-paint', buffered: true });
+  });
+}
 
 /**
  * Initialize.
  * @param {Object} config The config
  * @returns {Promise<void>} Promise that resolves when the page is initialized
  */
-async function initialize(config = window.AEM_CONFIG || {}) {
-  // Load brick resources
-  const bricks = config.bricks
-    ?.filter(matchRoute)
-    .filter((x) => !x.lazy)
-    .map(({ selector }) => selector);
-
-  const components = config.bricks
-    ?.filter(matchRoute)
-    .filter((x) => !x.lazy)
-    .map(({ name }) => name);
-
-  const templates = config.bricks
-    ?.filter(matchRoute)
-    .filter((x) => x.template && !x.lazy)
-    .map(({ name }) => name);
-
-  const modules = config.modules
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => !lazy)
-    .map(({ path }) => path);
-
-  const styles = config.styles
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => !lazy)
-    .map(({ path }) => path);
-
+async function initialize() {
   // Load first image eagerly
   loadEagerImages();
 
@@ -332,36 +344,12 @@ async function initialize(config = window.AEM_CONFIG || {}) {
   // Decorate Root
   decorateRoot();
 
-  // Load bricks
-  setTimeout(() => bricks.forEach(loadBricks), 0);
-
-  const [loadedComponents] = await Promise.allSettled([
-    // bricks
-    Promise.allSettled([...components].map(loadBrick)),
-    Promise.allSettled([...templates].map(loadTemplate)),
-
-    // modules
-    Promise.allSettled([...modules].map(loadESModule)),
-
-    // TODO: scripts
-
-    // styles
-    Promise.allSettled([...styles].map(loadCSS)),
-
-    // TODO: load fonts
+  // Load Resources
+  await Promise.allSettled([
+    loadBricks(false)(),
+    loadESModules(false)(),
+    loadStyles(false)(),
   ]);
-
-  // Define custom elements
-  setTimeout(() => {
-    loadedComponents.value.forEach(({ status, value }) => {
-      if (status === 'fulfilled') {
-        // If not already defined, define it.
-        if (!customElements.get(value.name)) {
-          customElements.define(value.name, value.className);
-        }
-      }
-    });
-  }, 0);
 
   // update body
   const body = document.createElement('body');
@@ -369,32 +357,15 @@ async function initialize(config = window.AEM_CONFIG || {}) {
   body.dataset.status = 'loaded';
   document.body.replaceWith(body);
 
-  // // Wait for LCP
-  // await waitForLCP();
-
-  // // Load lazy scripts
-  // config.modules
-  //   ?.filter(matchRoute)
-  //   .filter(({ lazy }) => lazy)
-  //   .forEach(({ path }) => {
-  //     loadESModule(`${path}`);
-  //   });
-
-  // // Load lazy scripts
-  // config.scripts
-  //   ?.filter(matchRoute)
-  //   .filter(({ lazy }) => lazy)
-  //   .forEach(({ path }) => {
-  //     loadScript(`${path}`);
-  //   });
-
-  // // Load lazy styles
-  // config.styles
-  //   ?.filter(matchRoute)
-  //   .filter(({ lazy }) => lazy)
-  //   .forEach(({ path }) => {
-  //     loadCSS(`${path}`);
-  //   });
+  setTimeout(async () => {
+    await waitForLCP();
+    // Load Lazy Resources
+    Promise.allSettled([
+      loadBricks(true)(),
+      loadESModules(true)(),
+      loadStyles(true)(),
+    ]);
+  }, 0);
 }
 
 /**
@@ -491,18 +462,10 @@ window.Brick = class Brick extends HTMLElement {
         this.injectMoreContent(newContent);
       }
 
-      // Append content to shadow root or directly
-      if (template.getAttribute('shadowroot') === 'true') {
-        this.attachShadow({ mode: 'open' });
-        this.shadowRoot.appendChild(newContent);
-        this.root = this.shadowRoot;
-      } else {
-        this.innerHTML = '';
-        this.appendChild(newContent);
-        this.root = this;
-      }
+      this.innerHTML = '';
+      this.appendChild(newContent);
     }
   }
 };
 
-setTimeout(initialize, 0);
+initialize();
