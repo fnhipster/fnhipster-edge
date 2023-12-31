@@ -1,6 +1,5 @@
 export default class Root extends window.Brick {
   connectedCallback() {
-    // const node = this.querySelector('fn-content')?.shadowRoot;
     const node = this.querySelector('main');
 
     // Decorate Sections

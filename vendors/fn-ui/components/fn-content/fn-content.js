@@ -65,6 +65,8 @@ template.innerHTML = /* html */ `
       border-left: 0.5em solid;
     }
   </style>
+
+  <slot></slot>
 `;
 
 export default class Content extends HTMLElement {
@@ -74,12 +76,6 @@ export default class Content extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'open' });
 
     shadowRoot.appendChild(template.content.cloneNode(true));
-  }
-
-  connectedCallback() {
-    [...this.children]?.forEach((child) => {
-      this.shadowRoot.appendChild(child);
-    });
   }
 }
 
