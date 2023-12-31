@@ -10,13 +10,13 @@ template.innerHTML = /* html */ `
         display: grid; 
         font-size: 10px;
         grid-auto-rows: auto 1fr auto;  
-        margin: 0 auto; 
-        max-width: 100rem; 
         min-height: 100vh; 
         padding: 0 var(--margin); 
         transform-origin: top center; 
         width: 100%;
         color: var(--color-fg);
+        max-width: 1200px; 
+        margin: 0 auto; 
       }
 
       @keyframes glitch {          
