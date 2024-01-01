@@ -196,6 +196,32 @@ function transformToBrick(block) {
 }
 
 /**
+ * Prefetch a URL.
+ * @param {string} url The URL to prefetch
+ * @returns {Promise<void>} Promise that resolves when the URL is prefetched
+ */
+async function appendInitialData(path) {
+  const url = path.startsWith('/') ? new URL(path, window.location.origin) : new URL(path);
+
+  try {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      // eslint-disable-next-line no-console
+      console.warn(`failed to prefetch "${path}"`);
+    }
+
+    const meta = document.createElement('meta');
+    meta.setAttribute('property', `data:${path}`);
+    meta.setAttribute('content', JSON.stringify(await res.json()));
+    document.head.append(meta);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`Prefetching "${path}" failed:`, error);
+  }
+}
+
+/**
  * Load Bricks.
  * @param {boolean} lazy Whether to load lazy bricks
  * @returns {Promise<void>
@@ -284,30 +310,16 @@ function loadStyles(lazy = false) {
 }
 
 /**
- * Preload fragment.
+ * Load Initial Data.
  * @param {HTMLElement} element The fragment element
  * @returns {Promise<void>} Promise that resolves when the fragment is loaded
  */
-// async function preloadFragment(element) {
-//   const item = element.querySelector('div > div');
-//   const path = item.innerText;
+async function loadInitialData() {
+  const prefetches = CONFIG.initialData
+    ?.filter(matchRoute).map(({ path }) => path);
 
-//   const url = new URL(`${path}.plain.html`, window.location.origin);
-
-//   try {
-//     const res = await fetch(url);
-
-//     if (!res.ok) {
-//       // eslint-disable-next-line no-console
-//       console.warn(`failed to preload fragment ${path}`);
-//     }
-
-//     item.innerHTML = await res.text();
-//   } catch (error) {
-//     // eslint-disable-next-line no-console
-//     console.error(`Loading fragment ${path} failed:`, error);
-//   }
-// }
+  return Promise.allSettled([...prefetches].map(appendInitialData));
+}
 
 /**
  * Initialize.
@@ -329,6 +341,7 @@ async function initialize() {
     loadBricks(false)(),
     loadESModules(false)(),
     loadStyles(false)(),
+    loadInitialData(),
   ]);
 
   // update body
@@ -417,6 +430,16 @@ window.Brick = class Brick extends HTMLElement {
     });
   }
 
+  static getInitialData(name) {
+    const meta = document.head.querySelector(`meta[property="data:${name}"]`);
+
+    if (meta) {
+      return JSON.parse(meta.getAttribute('content'));
+    }
+
+    return null;
+  }
+
   constructor() {
     super();
 
@@ -435,11 +458,6 @@ window.Brick = class Brick extends HTMLElement {
 
       // Append content from our template's CSS selectors
       Brick.appendFromCSSSelector(newContent, this);
-
-      // Let derived classes inject more content if needed
-      if (typeof this.injectMoreContent === 'function') {
-        this.injectMoreContent(newContent);
-      }
 
       this.innerHTML = '';
       this.appendChild(newContent);
