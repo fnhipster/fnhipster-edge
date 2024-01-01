@@ -82,11 +82,11 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/styles/fn.css',
     },
-    {
-      route: /.*/,
-      path: '/vendors/fn-ui/styles/fonts.css',
-      lazy: true,
-    },
+    // {
+    //   route: /.*/,
+    //   path: '/vendors/fn-ui/styles/fonts.css',
+    //   lazy: true,
+    // },
   ],
 
   // Prefetch Data
