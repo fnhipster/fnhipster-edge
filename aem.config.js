@@ -20,12 +20,6 @@ window.AEM_CONFIG = {
     },
     {
       route: /.*/,
-      name: 'aem-page-metadata',
-      selector: '.page-metadata',
-      template: false,
-    },
-    {
-      route: /.*/,
       name: 'aem-section-metadata',
       selector: '.section-metadata',
       template: false,

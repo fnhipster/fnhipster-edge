@@ -2,6 +2,9 @@ export default class Root extends window.Brick {
   connectedCallback() {
     const node = this.querySelector('main');
 
+    // Decorate Theme
+    Root.decorateTheme();
+
     // Decorate Sections
     node?.querySelectorAll(':scope > div:not([data-status="loaded"])')?.forEach(Root.decorateSection);
 
@@ -10,6 +13,14 @@ export default class Root extends window.Brick {
 
     // Decorate Links
     node?.querySelectorAll('a:not([data-status="loaded"])')?.forEach(Root.decorateLink);
+  }
+
+  static decorateTheme() {
+    const color = document.head.querySelector('meta[name="color"]')?.content;
+    const background = document.head.querySelector('meta[name="background"]')?.content;
+
+    if (color) document.documentElement.style.setProperty('--color-fg', color);
+    if (background) document.documentElement.style.setProperty('--color-bg', background);
   }
 
   static decorateSection(elem) {
