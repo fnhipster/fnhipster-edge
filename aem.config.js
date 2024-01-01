@@ -8,6 +8,12 @@ window.AEM_CONFIG = {
     },
     {
       route: /.*/,
+      name: 'aem-menu',
+      selector: '.menu',
+      template: true,
+    },
+    {
+      route: /.*/,
       name: 'aem-hero',
       selector: '.hero',
       template: true,
@@ -25,6 +31,7 @@ window.AEM_CONFIG = {
       template: false,
     },
   ],
+
   // ESM Modules
   modules: [
     {
@@ -79,6 +86,14 @@ window.AEM_CONFIG = {
       route: /.*/,
       path: '/vendors/fn-ui/styles/fonts.css',
       lazy: true,
+    },
+  ],
+
+  // Prefetch Data
+  initialData: [
+    {
+      route: /.*/,
+      path: '/query-index.json',
     },
   ],
 };
