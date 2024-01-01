@@ -3,6 +3,14 @@
 <script type="module" src="/aem.config.js"></script>
 <script type="module" src="/scripts/aem.js"></script>
 
+<script>
+  const color = document.head.querySelector('meta[name="color"]')?.content;
+  const bg = document.head.querySelector('meta[name="background"]')?.content;
+
+  if (color) document.documentElement.style.setProperty('--color-fg', color);
+  if (bg) document.documentElement.style.setProperty('--color-bg', bg);
+</script>
+
 <style>
   html {
     background-color: var(--color-bg);
