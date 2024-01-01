@@ -1,1 +1,1 @@
-export default class Columns extends window.Brick { }
+export default class Columns extends Brick { }

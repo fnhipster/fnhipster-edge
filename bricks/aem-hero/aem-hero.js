@@ -1,1 +1,1 @@
-export default class Hero extends window.Brick { }
+export default class Hero extends Brick { }

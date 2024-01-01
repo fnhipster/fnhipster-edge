@@ -1,4 +1,4 @@
-export default class PageMetadata extends window.Brick {
+export default class PageMetadata extends Brick {
   connectedCallback() {
     [...this.children].forEach((child) => {
       const key = child.children[0].textContent.toLowerCase();

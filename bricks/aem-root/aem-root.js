@@ -1,4 +1,4 @@
-export default class Root extends window.Brick {
+export default class Root extends Brick {
   connectedCallback() {
     const node = this.querySelector('main');
 

@@ -1,1 +1,1 @@
-export default class Fragment extends window.Brick {}
+export default class Fragment extends Brick {}

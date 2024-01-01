@@ -1,4 +1,4 @@
-export default class Menu extends window.Brick {
+export default class Menu extends Brick {
   path = '/query-index.json';
 
   async connectedCallback() {
@@ -18,7 +18,7 @@ export default class Menu extends window.Brick {
   }
 
   async getData() {
-    const initialData = window.Brick.getInitialData(this.path);
+    const initialData = Brick.getInitialData(this.path);
 
     if (initialData) return initialData.data;
 
