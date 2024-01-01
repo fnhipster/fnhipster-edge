@@ -68,12 +68,10 @@ window.AEM_CONFIG = {
     {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
-      lazy: true,
     },
     {
       route: /.*/,
       path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
-      lazy: true,
     },
   ],
 
