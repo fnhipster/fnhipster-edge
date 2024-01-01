@@ -174,7 +174,7 @@ function decorateRoot() {
  */
 function loadEagerImages() {
   const pictureElement = vBODY.querySelector('picture');
-  pictureElement.querySelector('img').setAttribute('loading', 'eager');
+  pictureElement?.querySelector('img').setAttribute('loading', 'eager');
 }
 
 /**
