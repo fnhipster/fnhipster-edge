@@ -3,7 +3,8 @@ export default class Menu extends Brick {
 
   async connectedCallback() {
     const list = this.querySelector('#menu');
-    const data = await this.getData();
+
+    const { data } = await Brick.getData('/query-index.json');
 
     data?.forEach((element) => {
       const li = document.createElement('li');
@@ -15,16 +16,5 @@ export default class Menu extends Brick {
       li.appendChild(a);
       list.appendChild(li);
     });
-  }
-
-  async getData() {
-    const initialData = Brick.getInitialData(this.path);
-
-    if (initialData) return initialData.data;
-
-    const url = new URL(this.path, window.location.origin);
-    const res = await fetch(url);
-    const { data } = await res.json();
-    return data;
   }
 }

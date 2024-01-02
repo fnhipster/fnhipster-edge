@@ -201,7 +201,9 @@ function transformToBrick(block) {
  * @returns {Promise<void>} Promise that resolves when the URL is prefetched
  */
 async function appendInitialData(path) {
-  const url = path.startsWith('/') ? new URL(path, window.location.origin) : new URL(path);
+  const url = path.startsWith('/')
+    ? new URL(path, window.location.origin)
+    : new URL(path);
 
   try {
     const res = await fetch(url);
@@ -234,10 +236,7 @@ function loadBricks(lazy = false) {
     CONFIG.bricks
       ?.filter(matchRoute)
       .forEach(({
-        name,
-        selector,
-        template,
-        lazy: _lazy = false,
+        name, selector, template, lazy: _lazy = false,
       }) => {
         if (lazy !== _lazy) return;
 
@@ -246,19 +245,17 @@ function loadBricks(lazy = false) {
         if (template) templates.push(name);
 
         // Load Bricks from DOM
-        vBODY
-          .querySelectorAll(selector)
-          .forEach((block) => {
-            const { status } = block.dataset;
+        vBODY.querySelectorAll(selector).forEach((block) => {
+          const { status } = block.dataset;
 
-            if (status === 'loading' || status === 'loaded') return;
+          if (status === 'loading' || status === 'loaded') return;
 
-            block.dataset.status = 'loading';
+          block.dataset.status = 'loading';
 
-            const brick = transformToBrick(block);
+          const brick = transformToBrick(block);
 
-            brick.dataset.status = 'loaded';
-          });
+          brick.dataset.status = 'loaded';
+        });
       });
 
     const [loaded] = await Promise.allSettled([
@@ -316,7 +313,8 @@ function loadStyles(lazy = false) {
  */
 async function loadInitialData() {
   const prefetches = CONFIG.initialData
-    ?.filter(matchRoute).map(({ path }) => path);
+    ?.filter(matchRoute)
+    .map(({ path }) => path);
 
   return Promise.allSettled([...prefetches].map(appendInitialData));
 }
@@ -430,14 +428,20 @@ window.Brick = class Brick extends HTMLElement {
     });
   }
 
-  static getInitialData(name) {
-    const meta = document.head.querySelector(`meta[property="data:${name}"]`);
+  static async getData(path) {
+    const meta = document.head.querySelector(`meta[property="data:${path}"]`);
 
     if (meta) {
       return JSON.parse(meta.getAttribute('content'));
     }
 
-    return null;
+    const url = path.startsWith('/')
+      ? new URL(path, window.location.origin)
+      : new URL(path);
+
+    const res = await fetch(url);
+
+    return res.json();
   }
 
   constructor() {
