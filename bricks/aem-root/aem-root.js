@@ -2,22 +2,7 @@ export default class Root extends Brick {
   observer = new MutationObserver((mutationList) => {
     mutationList.forEach((mutation) => {
       if (mutation.type === 'childList') {
-        const node = mutation.target;
-
-        // Decorate Sections
-        node
-          ?.querySelectorAll('div:not([data-status="loaded"])')
-          ?.forEach(Root.decorateSection);
-
-        // Decorate Images
-        node
-          ?.querySelectorAll('picture:not([data-status="loaded"])')
-          ?.forEach(Root.decorateImage);
-
-        // Decorate Links
-        node
-          ?.querySelectorAll('a:not([data-status="loaded"])')
-          ?.forEach(Root.decorateLink);
+        Root.decorate(mutation.target);
       }
     });
   });
@@ -25,6 +10,10 @@ export default class Root extends Brick {
   connectedCallback() {
     const node = this.querySelector('fn-content').shadowRoot;
 
+    // Decorate all elements
+    Root.decorate(node);
+
+    // Observe for new elements
     this.observer.observe(node, { childList: true, subtree: true });
   }
 
@@ -86,5 +75,11 @@ export default class Root extends Brick {
     elem.dataset.status = 'loaded';
 
     elem.replaceWith(fnLink);
+  }
+
+  static decorate(node) {
+    node.querySelectorAll('a').forEach(Root.decorateLink);
+    node.querySelectorAll('img').forEach(Root.decorateImage);
+    node.querySelectorAll(':host > div').forEach(Root.decorateSection);
   }
 }
