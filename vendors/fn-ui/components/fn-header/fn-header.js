@@ -1,3 +1,7 @@
+import '../fn-logo/fn-logo.js';
+import '../fn-link/fn-link.js';
+
+
 const tagName = 'fn-header';
 
 const template = document.createElement('template');

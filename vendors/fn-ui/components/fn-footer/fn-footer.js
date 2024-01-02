@@ -1,3 +1,5 @@
+import '../fn-binary/fn-binary.js';
+
 const tagName = 'fn-footer';
 
 const template = document.createElement('template');

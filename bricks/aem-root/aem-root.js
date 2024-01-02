@@ -1,15 +1,21 @@
 export default class Root extends Brick {
   connectedCallback() {
-    const node = this.querySelector('main');
+    const node = this.querySelector('fn-content').shadowRoot;
 
     // Decorate Sections
-    node?.querySelectorAll(':scope > div:not([data-status="loaded"])')?.forEach(Root.decorateSection);
+    node
+      ?.querySelectorAll('div:not([data-status="loaded"])')
+      ?.forEach(Root.decorateSection);
 
     // Decorate Images
-    node?.querySelectorAll('picture:not([data-status="loaded"])')?.forEach(Root.decorateImage);
+    node
+      ?.querySelectorAll('picture:not([data-status="loaded"])')
+      ?.forEach(Root.decorateImage);
 
     // Decorate Links
-    node?.querySelectorAll('a:not([data-status="loaded"])')?.forEach(Root.decorateLink);
+    node
+      ?.querySelectorAll('a:not([data-status="loaded"])')
+      ?.forEach(Root.decorateLink);
   }
 
   static decorateSection(elem) {
@@ -21,13 +27,27 @@ export default class Root extends Brick {
       return;
     }
 
-    elem.classList.add('section');
+    const fnSection = document.createElement('fn-section');
+    fnSection.innerHTML = elem.innerHTML;
 
     elem.dataset.status = 'loaded';
+
+    [...elem.attributes].forEach((attr) => {
+      if (attr.name.startsWith('data-')) {
+        fnSection.setAttribute(attr.name.replace('data-', ''), attr.value);
+      } else {
+        fnSection.setAttribute(attr.name, attr.value);
+      }
+    });
+
+    elem.replaceWith(fnSection);
   }
 
   static decorateImage(elem) {
-    if (elem.dataset.status || elem.parentElement.tagName === 'FN-IMAGE') return;
+    if (elem.dataset.status || elem.parentElement.tagName === 'FN-IMAGE') {
+      return;
+    }
+
     // wrap element with <fn-image>
     const wrapper = document.createElement('fn-image');
 
