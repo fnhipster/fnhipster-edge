@@ -1,21 +1,35 @@
 export default class Root extends Brick {
+  observer = new MutationObserver((mutationList) => {
+    mutationList.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        const node = mutation.target;
+
+        // Decorate Sections
+        node
+          ?.querySelectorAll('div:not([data-status="loaded"])')
+          ?.forEach(Root.decorateSection);
+
+        // Decorate Images
+        node
+          ?.querySelectorAll('picture:not([data-status="loaded"])')
+          ?.forEach(Root.decorateImage);
+
+        // Decorate Links
+        node
+          ?.querySelectorAll('a:not([data-status="loaded"])')
+          ?.forEach(Root.decorateLink);
+      }
+    });
+  });
+
   connectedCallback() {
     const node = this.querySelector('fn-content').shadowRoot;
 
-    // Decorate Sections
-    node
-      ?.querySelectorAll('div:not([data-status="loaded"])')
-      ?.forEach(Root.decorateSection);
+    this.observer.observe(node, { childList: true, subtree: true });
+  }
 
-    // Decorate Images
-    node
-      ?.querySelectorAll('picture:not([data-status="loaded"])')
-      ?.forEach(Root.decorateImage);
-
-    // Decorate Links
-    node
-      ?.querySelectorAll('a:not([data-status="loaded"])')
-      ?.forEach(Root.decorateLink);
+  disconnectedCallback() {
+    this.observer.disconnect();
   }
 
   static decorateSection(elem) {
