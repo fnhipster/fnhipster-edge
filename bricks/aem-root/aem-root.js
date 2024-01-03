@@ -72,4 +72,10 @@ export default class Root extends Brick {
 
     elem.replaceWith(fnLink);
   }
+
+  static decorate(node) {
+    node.querySelectorAll('a').forEach(Root.decorateLink);
+    node.querySelectorAll('img').forEach(Root.decorateImage);
+    node.querySelectorAll(':host > div').forEach(Root.decorateSection);
+  }
 }
