@@ -12,8 +12,9 @@
 
 const CONFIG = window.AEM_CONFIG || {};
 
-const vBODY = new DocumentFragment();
-vBODY.append(...document.body.childNodes);
+const vBODY = document.body.cloneNode(true);
+// const vBODY = new DocumentFragment();
+// vBODY.append(...document.body.childNodes);
 
 /**
  * Load HTML Template.
@@ -232,6 +233,7 @@ function loadBricks(lazy = false) {
   return async () => {
     const components = [];
     const templates = [];
+    const result = [];
 
     CONFIG.bricks
       ?.filter(matchRoute)
@@ -241,6 +243,13 @@ function loadBricks(lazy = false) {
         if (lazy !== _lazy) return;
 
         components.push(name);
+
+        result.push({
+          name,
+          selector,
+          template,
+          lazy,
+        });
 
         if (template) templates.push(name);
 
@@ -271,6 +280,8 @@ function loadBricks(lazy = false) {
         }
       }
     });
+
+    return result;
   };
 }
 
@@ -343,18 +354,29 @@ async function initialize() {
   ]);
 
   // update body
-  const body = document.createElement('body');
-  body.append(...vBODY.childNodes);
-  body.dataset.status = 'loaded';
-  document.body.replaceWith(body);
+  document.body.dataset.status = 'loaded';
+  document.body.innerHTML = vBODY.innerHTML;
 
   // Load Lazy Resources
   setTimeout(async () => {
-    Promise.allSettled([
+    const [lazyBricksLoaded] = await Promise.allSettled([
       loadBricks(true)(),
       loadESModules(true)(),
       loadStyles(true)(),
     ]);
+
+    // rehydrate lazy bricks in body
+    if (lazyBricksLoaded.status === 'fulfilled') {
+      lazyBricksLoaded.value.forEach(({ name, selector, template }) => {
+        if (template) {
+          document.body.append(vBODY.querySelector(`#${name}`));
+        }
+
+        const destination = document.body.querySelector(selector);
+        const source = vBODY.querySelector(name);
+        destination.replaceWith(source);
+      });
+    }
   }, 0);
 }
 
