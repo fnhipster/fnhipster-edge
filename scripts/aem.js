@@ -142,10 +142,10 @@ function buildHeroBrick() {
   const picture = main.querySelector('main p > picture');
 
   if (
-    h1 &&
-    picture &&
+    h1
+    && picture
     // eslint-disable-next-line no-bitwise
-    h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING
+    && h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING
   ) {
     const section = document.createElement('div');
     section.classList.add('hero');
@@ -237,7 +237,9 @@ function loadBricks(lazy = false) {
 
     CONFIG.bricks
       ?.filter(matchRoute)
-      .forEach(({ name, selector, template, lazy: _lazy = false }) => {
+      .forEach(({
+        name, selector, template, lazy: _lazy = false,
+      }) => {
         if (lazy !== _lazy) return;
 
         components.push(name);
