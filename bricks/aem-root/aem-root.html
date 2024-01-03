@@ -2,7 +2,9 @@
   <fn-app>
     <fn-header slot="header"></fn-header>
 
-    <fn-content slot="main" aem-append="main"></fn-content>
+    <main slot="main">
+      <fn-content aem-append=":scope main > *"></fn-content>
+    </main>
 
     <fn-footer
       slot="footer"

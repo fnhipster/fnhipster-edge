@@ -44,6 +44,14 @@ window.AEM_CONFIG = {
     },
     {
       route: /.*/,
+      path: '/vendors/fn-ui/components/fn-content/fn-content.js',
+    },
+    {
+      route: /.*/,
+      path: '/vendors/fn-ui/components/fn-section/fn-section.js',
+    },
+    {
+      route: /.*/,
       path: '/vendors/fn-ui/components/fn-header/fn-header.js',
     },
     {
