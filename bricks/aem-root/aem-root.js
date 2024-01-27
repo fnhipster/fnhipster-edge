@@ -10,6 +10,10 @@ export default class Root extends Brick {
   });
 
   connectedCallback() {
+    // set lang attribute
+    document.documentElement.lang = 'en';
+
+    // observe new elements added to Root
     this.observer.observe(this, { childList: true, subtree: true });
   }
 
