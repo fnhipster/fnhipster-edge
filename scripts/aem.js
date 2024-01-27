@@ -179,7 +179,7 @@ function decorateRoot() {
  */
 function loadEagerImages() {
   const pictureElement = document.querySelector('picture');
-  pictureElement.querySelector('img').setAttribute('loading', 'eager');
+  pictureElement?.querySelector('img').setAttribute('loading', 'eager');
 }
 
 /**
