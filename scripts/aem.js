@@ -331,26 +331,6 @@ async function loadInitialData() {
 }
 
 /**
- * Wait for LCP.
- * @returns {Promise<PerformanceEntry>} Promise that resolves when the LCP is loaded
- */
-function waitForLCP() {
-  return new Promise((resolve) => {
-    const observer = new PerformanceObserver((list) => {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const entry of list.getEntries()) {
-        if (entry.entryType === 'largest-contentful-paint') {
-          resolve(entry);
-          observer.disconnect();
-        }
-      }
-    });
-
-    observer.observe({ type: 'largest-contentful-paint', buffered: true });
-  });
-}
-
-/**
  * Initialize.
  * @param {Object} config The config
  * @returns {Promise<void>} Promise that resolves when the page is initialized
