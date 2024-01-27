@@ -1,7 +1,57 @@
 import '../fn-logo/fn-logo.js';
 import '../fn-link/fn-link.js';
 
+
 const tagName = 'fn-header';
+
+const template = document.createElement('template');
+template.innerHTML = /* html */ `
+  <style>
+      header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding: var(--spacing-sm) 0;
+      }
+
+      fn-logo {
+        font-size: 2rem;
+      }
+
+      nav {
+        display: flex;
+        gap: var(--spacing-md);
+        font: var(--font-accent);
+        text-transform: uppercase;
+      }
+
+      @media (width >= 650px) {
+        header {
+          padding: var(--spacing-md) 0;
+        }
+      }
+  </style>
+
+  <header>
+    <fn-link href="/" aria-label="go to start of the line">
+      <fn-logo aria-label="fnhipster.com"></fn-logo>
+    </fn-link>
+
+    <nav>
+      <fn-link id="prev" decoration="none">
+        Prev
+      </fn-link>
+
+      <fn-link id="menu" decoration="none">
+        Go To
+      </fn-link>
+
+      <fn-link id="next" decoration="none">
+        Next
+      </fn-link>
+    </nav>
+  </header>
+`;
 
 export default class Header extends HTMLElement {
   static get observedAttributes() {
@@ -11,55 +61,9 @@ export default class Header extends HTMLElement {
   constructor() {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: 'open' });
 
-    this.shadowRoot.innerHTML = /* html */ `
-      <style>
-          header {
-            align-items: center;
-            display: flex;
-            justify-content: space-between;
-            padding: var(--spacing-sm) 0;
-          }
-
-          fn-logo {
-            font-size: 2rem;
-          }
-
-          nav {
-            display: flex;
-            gap: var(--spacing-md);
-            font: var(--font-accent);
-            text-transform: uppercase;
-          }
-
-          @media (width >= 650px) {
-            header {
-              padding: var(--spacing-md) 0;
-            }
-          }
-      </style>
-      
-      <header>
-        <fn-link href="/" aria-label="go to start of the line">
-          <fn-logo aria-label="fnhipster.com"></fn-logo>
-        </fn-link>
-
-        <nav>
-          <fn-link id="prev" decoration="none">
-            Prev
-          </fn-link>
-
-          <fn-link id="menu" decoration="none">
-            Go To
-          </fn-link>
-
-          <fn-link id="next" decoration="none">
-            Next
-          </fn-link>
-        </nav>
-      </header> 
-    `;
+    shadowRoot.appendChild(template.content.cloneNode(true));
   }
 
   connectedCallback() {

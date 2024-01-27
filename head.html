@@ -1,63 +1,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<script type="module">
-  import initialize from '/scripts/aem.js';
+<script type="module" src="/aem.config.js"></script>
+<script type="module" src="/scripts/aem.js"></script>
 
-  initialize({
-    // ESM Modules
-    modules: [
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-app/fn-app.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-binary/fn-binary.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-content/fn-content.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-footer/fn-footer.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-header/fn-header.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-image/fn-image.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-link/fn-link.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-logo/fn-logo.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-columns/fn-columns.js',
-      },
-      {
-        route: /.*/,
-        path: '/vendors/fn-ui/components/fn-hero/fn-hero.js',
-      },
-    ],
+<script>
+  const color = document.head.querySelector('meta[name="color"]')?.content;
+  const bg = document.head.querySelector('meta[name="background"]')?.content;
 
-    // Scripts
-    scripts: [],
-
-    // Styles
-    styles: [],
-  });
+  if (color) document.documentElement.style.setProperty('--color-fg', color);
+  if (bg) document.documentElement.style.setProperty('--color-bg', bg);
 </script>
-
-<link rel="stylesheet" href="/vendors/fn-ui/styles/fn.css" />
-<link rel="stylesheet" href="/vendors/fn-ui/styles/fonts.css" />
 
 <style>
   html {
@@ -67,10 +19,14 @@
 
   body {
     margin: 0;
-    font-size: 10px;
   }
 
   body:not([data-status='loaded']) {
     display: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
   }
 </style>

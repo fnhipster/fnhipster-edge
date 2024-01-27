@@ -10,6 +10,12 @@
  * governing permissions and limitations under the License.
  */
 
+const CONFIG = window.AEM_CONFIG || {};
+
+const vBODY = document.body.cloneNode(true);
+// const vBODY = new DocumentFragment();
+// vBODY.append(...document.body.childNodes);
+
 /**
  * Load HTML Template.
  * @param {string} name The name of the template
@@ -21,7 +27,7 @@ async function loadTemplate(name) {
   return new Promise((resolve, reject) => {
     const id = href.split('/').pop().split('.').shift();
 
-    const brick = document.querySelector(`template[id="${id}"]`);
+    const brick = vBODY.querySelector(`template[id="${id}"]`);
 
     if (brick) {
       resolve();
@@ -41,7 +47,7 @@ async function loadTemplate(name) {
 
             if (html) {
               html.id = id;
-              document.body.append(html);
+              vBODY.append(html);
             }
           })
           .finally(resolve);
@@ -85,7 +91,7 @@ async function loadBrick(name) {
  */
 async function loadCSS(href) {
   return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > link[href="${href}"]`)) {
+    if (!document.head.querySelector(`link[href="${href}"]`)) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = href;
@@ -99,32 +105,13 @@ async function loadCSS(href) {
 }
 
 /**
- * Loads a non module JS file.
- * @param {string} src URL to the JS file
- * @returns {Promise<void>} Promise that resolves when the JS file is loaded
- */
-async function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > script[src="${src}"]`)) {
-      const script = document.createElement('script');
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.append(script);
-    } else {
-      resolve();
-    }
-  });
-}
-
-/**
  * Loads a ES Module file.
  * @param {string} src URL to the JS file
  * @returns {Promise<void>} Promise that resolves when the JS file is loaded
  */
 async function loadESModule(src) {
   return new Promise((resolve, reject) => {
-    if (!document.querySelector(`head > script[src="${src}"]`)) {
+    if (!document.head.querySelector(`script[src="${src}"]`)) {
       const script = document.createElement('script');
       script.type = 'module';
       script.src = src;
@@ -138,10 +125,19 @@ async function loadESModule(src) {
 }
 
 /**
+ * Match route.
+ * @param {Object} param0 The route
+ * @returns {boolean} Whether the route matches the current path
+ */
+function matchRoute({ route }) {
+  return route?.test(window.location.pathname) ?? false;
+}
+
+/**
  * Builds hero brick and prepends to main in a new section.
  */
 function buildHeroBrick() {
-  const main = document.querySelector('main');
+  const main = vBODY.querySelector('main');
   const h1 = main.querySelector('main h1');
   const picture = main.querySelector('main p > picture');
 
@@ -168,17 +164,17 @@ function buildHeroBrick() {
  */
 function decorateRoot() {
   const root = document.createElement('aem-root');
-  root.append(document.querySelector('header'));
-  root.append(document.querySelector('main'));
-  root.append(document.querySelector('footer'));
-  document.body.prepend(root);
+  root.append(vBODY.querySelector('header'));
+  root.append(vBODY.querySelector('main'));
+  root.append(vBODY.querySelector('footer'));
+  vBODY.prepend(root);
 }
 
 /**
  * Load first image eagerly.
  */
 function loadEagerImages() {
-  const pictureElement = document.querySelector('picture');
+  const pictureElement = vBODY.querySelector('picture');
   pictureElement?.querySelector('img').setAttribute('loading', 'eager');
 }
 
@@ -190,86 +186,148 @@ function loadEagerImages() {
 function transformToBrick(block) {
   const { classList } = block;
   const blockName = classList[0];
-  const blockClasses = [...classList].slice(1);
 
   const tagName = `aem-${blockName || block.tagName.toLowerCase()}`;
   const brick = document.createElement(tagName);
-  brick.classList.add(...blockClasses);
-
+  brick.classList.add(...classList);
   brick.innerHTML = block.innerHTML;
-
-  block.parentNode.replaceChild(brick, block);
+  block.replaceWith(brick);
 
   return brick;
 }
 
 /**
- * Get brick resources.
- * @returns {Object} The brick resources
+ * Prefetch a URL.
+ * @param {string} url The URL to prefetch
+ * @returns {Promise<void>} Promise that resolves when the URL is prefetched
  */
-function getBrickResources() {
-  const components = new Set(['aem-root']);
-  const templates = new Set(['aem-root']);
-
-  // Load Bricks from DOM
-  document.body
-    .querySelectorAll('div[class]:not(.fragment)')
-    .forEach((block) => {
-      const { status } = block.dataset;
-
-      if (status === 'loading' || status === 'loaded') return;
-
-      block.dataset.status = 'loading';
-
-      const brick = transformToBrick(block);
-      const tagName = brick.tagName.toLowerCase();
-
-      components.add(tagName);
-
-      // only add templates for non-metadata bricks
-      if (!tagName.endsWith('-metadata')) {
-        templates.add(tagName);
-      }
-
-      brick.dataset.status = 'loaded';
-    });
-
-  return { components, templates };
-}
-
-/**
- * Preload fragment.
- * @param {HTMLElement} element The fragment element
- * @returns {Promise<void>} Promise that resolves when the fragment is loaded
- */
-async function preloadFragment(element) {
-  const item = element.querySelector('div > div');
-  const path = item.innerText;
-
-  const url = new URL(`${path}.plain.html`, window.location.origin);
+async function appendInitialData(path) {
+  const url = path.startsWith('/')
+    ? new URL(path, window.location.origin)
+    : new URL(path);
 
   try {
     const res = await fetch(url);
 
     if (!res.ok) {
       // eslint-disable-next-line no-console
-      console.warn(`failed to preload fragment ${path}`);
+      console.warn(`failed to prefetch "${path}"`);
     }
 
-    item.innerHTML = await res.text();
+    const meta = document.createElement('meta');
+    meta.setAttribute('property', `data:${path}`);
+    meta.setAttribute('content', JSON.stringify(await res.json()));
+    document.head.append(meta);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(`Loading fragment ${path} failed:`, error);
+    console.error(`Prefetching "${path}" failed:`, error);
   }
 }
 
 /**
- * Match route.
- * @param {Object} param0 The route
- * @returns {boolean} Whether the route matches the current path
+ * Load Bricks.
+ * @param {boolean} lazy Whether to load lazy bricks
+ * @returns {Promise<void>
  */
-function matchRoute({ route }) {
-  return route?.test(window.location.pathname) ?? false;
+function loadBricks(lazy = false) {
+  return async () => {
+    const components = [];
+    const templates = [];
+    const result = [];
+
+    CONFIG.bricks
+      ?.filter(matchRoute)
+      .forEach(({
+        name, selector, template, lazy: _lazy = false,
+      }) => {
+        if (lazy !== _lazy) return;
+
+        components.push(name);
+
+        result.push({
+          name,
+          selector,
+          template,
+          lazy,
+        });
+
+        if (template) templates.push(name);
+
+        // Load Bricks from DOM
+        vBODY.querySelectorAll(selector).forEach((block) => {
+          const { status } = block.dataset;
+
+          if (status === 'loading' || status === 'loaded') return;
+
+          block.dataset.status = 'loading';
+
+          const brick = transformToBrick(block);
+
+          brick.dataset.status = 'loaded';
+        });
+      });
+
+    const [loaded] = await Promise.allSettled([
+      Promise.allSettled([...components].map(loadBrick)),
+      Promise.allSettled([...templates].map(loadTemplate)),
+    ]);
+
+    loaded.value.forEach(({ status, value }) => {
+      if (status === 'fulfilled') {
+        // If not already defined, define it.
+        if (!customElements.get(value.name)) {
+          customElements.define(value.name, value.className);
+        }
+      }
+    });
+
+    return result;
+  };
+}
+
+/**
+ * Load ES Modules.
+ * @param {boolean} lazy Whether to load lazy modules
+ * @returns {Promise<void>
+ */
+function loadESModules(lazy = false) {
+  return async () => {
+    const modules = CONFIG.modules
+      ?.filter(matchRoute)
+      .filter(({ lazy: _lazy = false }) => lazy === _lazy)
+      .map(({ path }) => path);
+
+    return Promise.allSettled([...modules].map(loadESModule));
+  };
+}
+
+/**
+ * Load Styles.
+ * @param {boolean} lazy Whether to load lazy styles
+ * @returns {Promise<void>
+ */
+function loadStyles(lazy = false) {
+  return async () => {
+    const styles = CONFIG.styles
+      ?.filter(matchRoute)
+      .filter(({ lazy: _lazy = false }) => lazy === _lazy)
+      .map(({ path }) => path);
+
+    return Promise.allSettled([...styles].map(loadCSS));
+  };
+}
+
+/**
+ * Load Initial Data.
+ * @param {HTMLElement} element The fragment element
+ * @returns {Promise<void>} Promise that resolves when the fragment is loaded
+ */
+async function loadInitialData() {
+  const prefetches = CONFIG.initialData
+    ?.filter(matchRoute)
+    .map(({ path }) => path);
+
+  return Promise.allSettled([...prefetches].map(appendInitialData));
 }
 
 /**
@@ -297,7 +355,7 @@ function waitForLCP() {
  * @param {Object} config The config
  * @returns {Promise<void>} Promise that resolves when the page is initialized
  */
-export default async function initialize(config = {}) {
+async function initialize() {
   // Load first image eagerly
   loadEagerImages();
 
@@ -307,99 +365,46 @@ export default async function initialize(config = {}) {
   // Decorate Root
   decorateRoot();
 
-  // Preload fragments
-  await Promise.allSettled(
-    [...document.querySelectorAll('.fragment')].map(preloadFragment),
-  );
-
-  // Load brick resources
-  const { components, templates } = getBrickResources();
-
-  const [loadedComponents] = await Promise.allSettled([
-    // bricks in the document
-    Promise.allSettled([...components].map(loadBrick)),
-    Promise.allSettled([...templates].map(loadTemplate)),
-
-    // eager modules
-    Promise.allSettled(
-      config.modules
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ path }) => loadESModule(path)) || [],
-    ),
-
-    // eager scripts
-    Promise.allSettled(
-      config.modules
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ path }) => loadScript(path)) || [],
-    ),
-
-    // eager styles
-    Promise.allSettled(
-      config.styles
-        ?.filter(matchRoute)
-        .filter(({ lazy }) => !lazy)
-        .map(({ path }) => loadCSS(path)) || [],
-    ),
-
+  // Load Resources
+  await Promise.allSettled([
+    loadBricks(false)(),
+    loadESModules(false)(),
+    loadStyles(false)(),
+    loadInitialData(),
   ]);
 
-  // Define custom elements
-  loadedComponents.value.forEach(async ({ status, value }) => {
-    if (status === 'fulfilled') {
-      // If not already defined, define it.
-      if (!customElements.get(value.name)) {
-        customElements.define(value.name, value.className);
-      }
-    }
-  });
-
-  // Page is fully loaded
+  // update body
   document.body.dataset.status = 'loaded';
+  document.body.innerHTML = vBODY.innerHTML;
 
-  // Observe fonts loading
-  document.fonts.onloadingdone = (fontFaceSetEvent) => {
-    fontFaceSetEvent.fontfaces.forEach((fontFace) => {
-      const className = `font-loaded--${fontFace.family.replace(/ /g, '-').toLowerCase()}--${fontFace.weight}`;
-      document.body.classList.add(className);
-    });
-  };
+  // Load Lazy Resources
+  setTimeout(async () => {
+    const [lazyBricksLoaded] = await Promise.allSettled([
+      loadBricks(true)(),
+      loadESModules(true)(),
+      loadStyles(true)(),
+    ]);
 
-  // Wait for LCP
-  await waitForLCP();
+    // rehydrate lazy bricks in body
+    if (lazyBricksLoaded.status === 'fulfilled') {
+      lazyBricksLoaded.value.forEach(({ name, selector, template }) => {
+        if (template) {
+          document.body.append(vBODY.querySelector(`#${name}`));
+        }
 
-  // Load lazy scripts
-  config.modules
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => lazy)
-    .forEach(({ path }) => {
-      loadESModule(`${path}`);
-    });
-
-  // Load lazy scripts
-  config.scripts
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => lazy)
-    .forEach(({ path }) => {
-      loadScript(`${path}`);
-    });
-
-  // Load lazy styles
-  config.styles
-    ?.filter(matchRoute)
-    .filter(({ lazy }) => lazy)
-    .forEach(({ path }) => {
-      loadCSS(`${path}`);
-    });
+        const destination = document.body.querySelector(selector);
+        const source = vBODY.querySelector(name);
+        destination.replaceWith(source);
+      });
+    }
+  }, 0);
 }
 
 /**
  * Simpler brick using aem-append attributes in the
  * HTML template to select the content to inject in it.
  */
-export class Brick extends HTMLElement {
+window.Brick = class Brick extends HTMLElement {
   static appendFromCSSSelector(scope, elem) {
     scope.querySelectorAll('*[aem-append]')?.forEach((selector) => {
       const attr = selector.getAttribute('aem-append');
@@ -465,6 +470,22 @@ export class Brick extends HTMLElement {
     });
   }
 
+  static async getData(path) {
+    const meta = document.head.querySelector(`meta[property="data:${path}"]`);
+
+    if (meta) {
+      return JSON.parse(meta.getAttribute('content'));
+    }
+
+    const url = path.startsWith('/')
+      ? new URL(path, window.location.origin)
+      : new URL(path);
+
+    const res = await fetch(url);
+
+    return res.json();
+  }
+
   constructor() {
     super();
 
@@ -484,21 +505,10 @@ export class Brick extends HTMLElement {
       // Append content from our template's CSS selectors
       Brick.appendFromCSSSelector(newContent, this);
 
-      // Let derived classes inject more content if needed
-      if (typeof this.injectMoreContent === 'function') {
-        this.injectMoreContent(newContent);
-      }
-
-      // Append content to shadow root or directly
-      if (template.getAttribute('shadowroot') === 'true') {
-        this.attachShadow({ mode: 'open' });
-        this.shadowRoot.append(newContent);
-        this.root = this.shadowRoot;
-      } else {
-        this.innerHTML = '';
-        this.append(newContent);
-        this.root = this;
-      }
+      this.innerHTML = '';
+      this.appendChild(newContent);
     }
   }
-}
+};
+
+initialize();

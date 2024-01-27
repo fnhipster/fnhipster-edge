@@ -1,5 +1,3 @@
-import { Brick } from '../../scripts/aem.js';
-
 export default class PageMetadata extends Brick {
   connectedCallback() {
     [...this.children].forEach((child) => {

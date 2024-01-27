@@ -1,5 +1,28 @@
 const tagName = 'fn-columns';
 
+const template = document.createElement('template');
+
+template.innerHTML = /* html */ `
+  <style>
+    :host {
+      --gap: var(--spacing-sm);
+      display: grid;
+      grid-gap: var(--gap);
+      --columns: 1;
+    }
+
+    
+    @media (width >= 650px) {
+      :host {
+        --gap: var(--spacing-md);
+        --columns: var(--size);
+      }
+    }
+  </style>
+
+  <slot name="row"></slot>
+`;
+
 export default class Columns extends HTMLElement {
   static get observedAttributes() {
     return ['columns'];
@@ -8,28 +31,9 @@ export default class Columns extends HTMLElement {
   constructor() {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: 'open' });
 
-    this.shadowRoot.innerHTML = /* html */ `
-      <style>
-        :host {
-          --gap: var(--spacing-sm);
-          display: grid;
-          grid-gap: var(--gap);
-          --columns: 1;
-        }
-
-       
-        @media (width >= 650px) {
-          :host {
-            --gap: var(--spacing-md);
-            --columns: var(--size);
-          }
-        }
-      </style>
-
-      <slot name="row"></slot>
-    `;
+    shadowRoot.appendChild(template.content.cloneNode(true));
   }
 
   connectedCallback() {

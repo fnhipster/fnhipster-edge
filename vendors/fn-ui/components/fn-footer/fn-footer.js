@@ -2,6 +2,33 @@ import '../fn-binary/fn-binary.js';
 
 const tagName = 'fn-footer';
 
+const template = document.createElement('template');
+
+template.innerHTML = /* html */ `
+  <style>
+      footer {
+        align-items: center;
+        display: flex;
+        font: var(--font-accent);
+        justify-content: space-between;
+        text-transform: uppercase;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) 0;
+      }
+
+      @media (width >= 650px) {
+        footer {
+          padding: var(--spacing-md) 0;
+        }
+      }
+  </style>
+    
+  <footer className="fnh-footer">
+    <fn-binary></fn-binary>
+    <span>© ${new Date().getUTCFullYear()}, fnhipster</span>
+  </footer>
+`;
+
 export default class Footer extends HTMLElement {
   static get observedAttributes() {
     return ['message'];
@@ -10,32 +37,9 @@ export default class Footer extends HTMLElement {
   constructor() {
     super();
 
-    this.attachShadow({ mode: 'open' });
+    const shadowRoot = this.attachShadow({ mode: 'open' });
 
-    this.shadowRoot.innerHTML = /* html */ `
-      <style>
-          footer {
-            align-items: center;
-            display: flex;
-            font: var(--font-accent);
-            justify-content: space-between;
-            text-transform: uppercase;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-sm) 0;
-          }
-
-          @media (width >= 650px) {
-            footer {
-              padding: var(--spacing-md) 0;
-            }
-          }
-      </style>
-        
-      <footer className="fnh-footer">
-        <fn-binary></fn-binary>
-        <span>© ${new Date().getUTCFullYear()}, fnhipster</span>
-      </footer>
-    `;
+    shadowRoot.appendChild(template.content.cloneNode(true));
   }
 
   attributeChangedCallback(name, prev, next) {

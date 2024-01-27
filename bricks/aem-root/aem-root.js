@@ -1,39 +1,64 @@
-import { Brick } from '../../scripts/aem.js';
-
 export default class Root extends Brick {
+  observer = new MutationObserver((mutationList) => {
+    mutationList.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        this.querySelectorAll('a').forEach(Root.decorateLink);
+        this.querySelectorAll('img').forEach(Root.decorateImage);
+        this.querySelectorAll(':host > div').forEach(Root.decorateSection);
+      }
+    });
+  });
+
   connectedCallback() {
-    const node = this.querySelector('fn-content').shadowRoot;
+    this.observer.observe(this, { childList: true, subtree: true });
+  }
 
-    // Decorate Sections
-    node.querySelectorAll(':scope > div')?.forEach(Root.decorateSection);
-
-    // Decorate Images
-    node.querySelectorAll('picture:not([data-decorated])')?.forEach(Root.decorateImage);
-
-    // Decorate Links
-    node.querySelectorAll('a:not([data-decorated])')?.forEach(Root.decorateLink);
+  disconnectedCallback() {
+    this.observer.disconnect();
   }
 
   static decorateSection(elem) {
-    if (elem.dataset.decorated) return;
-    elem.classList.add('section');
-    elem.dataset.decorated = true;
+    if (elem.dataset.status) return;
+
+    // remove empty element
+    if (!elem.innerHTML) {
+      elem.remove();
+      return;
+    }
+
+    const fnSection = document.createElement('fn-section');
+    fnSection.innerHTML = elem.innerHTML;
+
+    elem.dataset.status = 'loaded';
+
+    [...elem.attributes].forEach((attr) => {
+      if (attr.name.startsWith('data-')) {
+        fnSection.setAttribute(attr.name.replace('data-', ''), attr.value);
+      } else {
+        fnSection.setAttribute(attr.name, attr.value);
+      }
+    });
+
+    elem.replaceWith(fnSection);
   }
 
   static decorateImage(elem) {
-    if (elem.dataset.decorated || elem.parentElement.tagName === 'FN-IMAGE') return;
+    if (elem.dataset.status || elem.parentElement.tagName === 'FN-IMAGE') {
+      return;
+    }
 
     // wrap element with <fn-image>
     const wrapper = document.createElement('fn-image');
+
     elem.parentElement.insertBefore(wrapper, elem);
+
     wrapper.appendChild(elem);
 
-    elem.dataset.decorated = true;
+    elem.dataset.status = 'loaded';
   }
 
   static decorateLink(elem) {
     const clone = elem.cloneNode(true);
-
     const fnLink = document.createElement('fn-link');
 
     if (clone.href) fnLink.setAttribute('href', clone.href);
@@ -43,8 +68,14 @@ export default class Root extends Brick {
 
     fnLink.innerHTML = elem.innerHTML;
 
-    elem.dataset.decorated = true;
+    elem.dataset.status = 'loaded';
 
     elem.replaceWith(fnLink);
+  }
+
+  static decorate(node) {
+    node.querySelectorAll('a').forEach(Root.decorateLink);
+    node.querySelectorAll('img').forEach(Root.decorateImage);
+    node.querySelectorAll(':host > div').forEach(Root.decorateSection);
   }
 }
